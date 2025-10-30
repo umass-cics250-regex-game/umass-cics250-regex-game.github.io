@@ -158,6 +158,17 @@ function perturbString(s, n) {
   return perturbString(s.slice(0,ind) + String(1-Number(s[ind])) + s.slice(ind+1),n-1);
 }
 
+/* given a regex, an array of accept strings and an array of reject strings, return a string (in neither the accept nor reject arrays) and a bool that indicates whether the regex should accept it or not */
+function genNewExample(r, accept, reject) {
+  do {
+    var s = genExample(r);
+    if (Math.random() > 0.5) {
+      s = perturbString(s,1);
+    }
+  } while (!accept.includes(s) && !reject.includes(s));
+  return [s, !match(s,r)];
+}
+
 // handles begin event 
 document.getElementById('beginBtn').addEventListener('click', function() {
     for (var j = 0; j<10; j++) {
