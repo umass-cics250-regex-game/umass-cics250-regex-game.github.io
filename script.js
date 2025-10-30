@@ -137,16 +137,45 @@ function genExample(r) {
   return '';
 }
 
+/* randomly change a string some number of times */
+function perturbString(s, n) {
+  if (n == 0) {
+    return s // base case
+  }
+  if (s.length == 0) {
+    return perturbString(String(Math.floor(Math.random()*2)),n-1); // only option is add a random character
+  }
+  var opt = Math.random()*3;
+  if (opt > 2) { // insert random character somewhere
+    const ind = Math.floor(Math.random()*(s.length+1));
+    return perturbString(s.slice(0,ind) + String(Math.floor(Math.random()*2)) + s.slice(ind),n-1);
+  }
+  if (opt > 1) { // delete random character
+    const ind = Math.floor(Math.random()*s.length);
+    return perturbString(s.slice(0,ind) + s.slice(ind+1), n-1);
+  }
+  const ind = Math.floor(Math.random()*s.length); // change random character
+  return perturbString(s.slice(0,ind) + String(1-Number(s[ind])) + s.slice(ind+1),n-1);
+}
+
 // handles begin event 
 document.getElementById('beginBtn').addEventListener('click', function() {
-    var r = generateRegex()
-    document.getElementById('question1').innerHTML = "1. " + r
-    var s = [];
-    const labels = ["A","B","C","D"]
-    for (var i = 0; i < 4; i++) {
-      s0 = genExample(r)
-      document.getElementById('q1a'+String(i)).innerHTML = labels[i] + ") " + s0
-      s.push(s0)
+    for (var j = 0; j<10; j++) {
+      var r = generateRegex()
+      document.getElementById('question'+String(j)).innerHTML = String(j+1)+". " + r;
+      var s = [];
+      const labels = ["A","B","C","D"];
+      for (var i = 0; i < 4; i++) {
+        var s0 = genExample(r);
+        if (Math.random()>0.5) {
+          s0 = perturbString(s0,1);
+        }
+        if (s0 == '') {
+          s0 = 'λ';
+        }
+        document.getElementById('q'+j+'a'+String(i)).innerHTML = labels[i] + ") " + s0
+        s.push(s0)
+      }
     }
 
     window.scrollTo({
