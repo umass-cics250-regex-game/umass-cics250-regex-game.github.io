@@ -31,7 +31,6 @@ document.addEventListener('DOMContentLoaded', function() {
   }
 
   getAnswersButton.addEventListener('click', checkSolutions);
-
 });
 
 /* Generate random regex, with probability of generating single character w
@@ -193,17 +192,29 @@ document.getElementById('beginBtn').addEventListener('click', function() {
         top: 0, // Scrolls to the top of the page
         behavior: 'smooth' // Provides a smooth scrolling animation
     });
+
+    const quiz0 = document.getElementById('quiz0');
+    const landingSection = document.getElementById('landingSection');
+    quiz0.classList.remove("hidden")
+    landingSection.classList.add("hidden")
 });
 
 // handles checkAnswer event 
 document.getElementById('checkAnswersBtn').addEventListener('click', function() {
-    const continueButton = document.getElementById('continueToGameBtn');
-    const getAnswersButton = document.getElementById('checkAnswersBtn');
-    
-
-
     window.scrollTo({
         top: 0, // Scrolls to the top of the page
         behavior: 'smooth' // Provides a smooth scrolling animation
     });
 });
+
+// handles continue (toGame) event 
+document.getElementById('continueToGameBtn').addEventListener('click', function() {
+  console.log("hello")
+  const quiz0 = document.getElementById('quiz0');
+  quiz0.classList.add('hidden');
+
+  const gameSection = document.getElementById('gameSection');
+  gameSection.classList.remove('hidden');
+
+});
+
