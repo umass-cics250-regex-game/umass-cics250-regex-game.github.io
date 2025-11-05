@@ -77,7 +77,12 @@ function generateRegex() {
 
 /* Check if string s is a match for regex r*/
 function match(s, r) {
-  const re = new RegExp("^(" + r + ")$");
+  var re;
+  try {
+    re = new RegExp("^(" + r + ")$");
+  } catch (e) {
+    return false;
+  }
   const result = re.test(s);
   return result;
 }
@@ -86,6 +91,25 @@ function genExample(r) {
   if (r.length <= 1) {
     return r; // single character or empty, it's got to be 0 or 1 or ''
   }
+  var depth = 0;
+  var pos = [];
+  for (var i = 0; i < r.length; i++) {
+    if (r[i] == "(") {
+      depth += 1;
+    } else if (r[i] == ")") {
+      depth -= 1;
+    } else if (r[i] == "|" && depth == 0) {
+    pos.push(i);
+    }
+  }
+  if (pos.length > 0) { // or without parentheses around it
+    pos.unshift(-1);
+    pos.push(r.length);
+    var which = Math.floor(Math.random()*(pos.length-1));
+    return genExample(r.slice(pos[which]+1,pos[which+1]));
+  }
+
+
   if (r[0] != "(" && r[1] != "*") {
     return r[0] + genExample(r.slice(1)); // first character is not in an or, and not kleene starred, so it must be just a 0 or 1 at the start of the string
   } 
@@ -159,12 +183,13 @@ function perturbString(s, n) {
 
 /* given a regex, an array of accept strings and an array of reject strings, return a string (in neither the accept nor reject arrays) and a bool that indicates whether the regex should accept it or not */
 function genNewExample(r, accept, reject) {
+  var s;
   do {
-    var s = genExample(r);
+    s = genExample(r);
     if (Math.random() > 0.5) {
       s = perturbString(s,1);
     }
-  } while (!accept.includes(s) && !reject.includes(s));
+  } while (accept.includes(s) || reject.includes(s));
   return [s, !match(s,r)];
 }
 
@@ -215,6 +240,110 @@ document.getElementById('continueToGameBtn').addEventListener('click', function(
 
   const gameSection = document.getElementById('gameSection');
   gameSection.classList.remove('hidden');
-
+  initializeGame();
 });
 
+/* Password game stuff */
+var include_strs = [];
+var exclude_strs = [];
+var usr_regex = '';
+
+function initializeGame() {
+  include_strs = [];
+  exclude_strs = [];
+  
+  const include_html = document.getElementById('include-list');
+  const exclude_html = document.getElementById('exclude-list');
+  include_html.innerHTML = "";
+  exclude_html.innerHTML = "";
+
+  document.getElementById("user-regex").innerHTML = "";
+
+  usr_regex = '';
+  for (var i = 0; i < 3; i++) {
+    var cand = '';
+    do {
+      cand = '';
+      for (var k=0; k<10; k++) {
+        cand += '01'.charAt(Math.floor(Math.random() * 2));
+      }
+    } while (include_strs.includes(cand) || exclude_strs.includes(cand));
+    include_strs.push(cand);
+    
+    var entry = document.createElement('li');
+    entry.appendChild(document.createTextNode(cand+" (⨉)"));
+    include_html.appendChild(entry);
+
+    cand = '';
+    do {
+      cand = '';
+      for (var k=0; k<10; k++) {
+        cand += '01'.charAt(Math.floor(Math.random() * 2));
+      }
+    } while (include_strs.includes(cand) || exclude_strs.includes(cand));
+    exclude_strs.push(cand);
+
+    var entry = document.createElement('li');
+    entry.appendChild(document.createTextNode(cand+" (✓)"));
+    exclude_html.appendChild(entry);
+  }
+}
+
+document.getElementById("user-regex").addEventListener('input', function (evt) {
+  const r = this.value;
+  
+  const include_html = document.getElementById('include-list');
+  const exclude_html = document.getElementById('exclude-list');
+  include_html.innerHTML = "";
+  exclude_html.innerHTML = "";
+  
+  var all_met = true;
+
+  for (var i = 0; i < include_strs.length; i++) {
+    s = include_strs[i]
+    matches = match(s,r);
+
+    if (matches) {
+      var entry = document.createElement('li');
+      entry.appendChild(document.createTextNode(s+" (✓)"));
+      include_html.appendChild(entry);
+    } else {
+      var entry = document.createElement('li');
+      entry.appendChild(document.createTextNode(s+" (⨉)"));
+      include_html.appendChild(entry);
+      all_met = false;
+    }
+  }
+
+  for (var i = 0; i < exclude_strs.length; i++) {
+    s = exclude_strs[i];
+    matches = match(s,r);
+
+    if (!matches) {
+      var entry = document.createElement('li');
+      entry.appendChild(document.createTextNode(s+" (✓)"));
+      exclude_html.appendChild(entry);
+    } else {
+      var entry = document.createElement('li');
+      entry.appendChild(document.createTextNode(s+" (⨉)"));
+      exclude_html.appendChild(entry);
+      all_met = false;
+    }
+  }
+
+  if (all_met) {
+    var [c,b] = genNewExample(r,include_strs,exclude_strs);
+    if (b) {
+      include_strs.push(c);
+      var entry = document.createElement('li');
+      entry.appendChild(document.createTextNode(c+" (⨉)"));
+      include_html.appendChild(entry);
+    } else {
+      exclude_strs.push(c);
+      var entry = document.createElement('li');
+      entry.appendChild(document.createTextNode(c+" (⨉)"));
+      exclude_html.appendChild(entry);
+    }
+  }
+
+});

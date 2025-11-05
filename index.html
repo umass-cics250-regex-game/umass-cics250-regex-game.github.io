@@ -145,13 +145,13 @@
 
                 <div class="overview"> At each level of the game, you will input a regular expression which 
                     includes or excludes the given strings. Your solution should only inlude the following characters
-                    { 1 , 0 , ( , ) , * } <br> <br>
+                    { 1 , 0 , ( , ) , * , + } <br> <br>
 
                     You must pass at least 10 levels to continue to the Post-Game Knowledge Check, but you are welcome to 
                     play for longer.
                 </div>
 
-                <div class="input-container" > <input class="input" type="text" placeholder="Your Solution"> </div>
+                <div class="input-container" > <input class="input" type="text" placeholder="Your Solution" id="user-regex"> </div>
 
                 <div class="level-counter" > <p>Level 3</p> </div>
 
@@ -159,7 +159,7 @@
                     <div id="include-container" class="string-container"> 
                         <div class="string-container-header">Include</div> 
                         <div class="string-list"> 
-                            <el>
+                            <el id="include-list">
                                 <li>String1 <i class="material-icons">check_small</i></li>
                                 <li>String2 <i class="material-icons">close_small</i></li>
                                 <li>String3 <i class="material-icons">check_small</i></li>
@@ -169,7 +169,7 @@
                     <div id="exclude-container" class="string-container"> 
                         <div class="string-container-header">Exclude</div> 
                             <div class="string-list"> 
-                                <el>
+                                <el id="exclude-list">
                                     <li>String1 <i class="material-icons">close_small</i></li>
                                     <li>String2 <i class="material-icons">check_small</i></li>
                                     <li>String3 <i class="material-icons">close_small</i></li>
