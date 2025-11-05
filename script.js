@@ -75,6 +75,15 @@ function generateRegex() {
   return weighted_regex_gen(0.97)[0];
 }
 
+/* turn screen-readable regex into parseable regex */
+function display_to_regex(r) {
+  return r.replaceAll("+","|");
+}
+
+function regex_to_display(r) {
+  return r.replaceAll("|","+")
+}
+
 /* Check if string s is a match for regex r*/
 function match(s, r) {
   var re;
@@ -197,7 +206,7 @@ function genNewExample(r, accept, reject) {
 document.getElementById('beginBtn').addEventListener('click', function() {
     for (var j = 0; j<10; j++) {
       var r = generateRegex()
-      document.getElementById('question'+String(j)).innerHTML = String(j+1)+". " + r;
+      document.getElementById('question'+String(j)).innerHTML = String(j+1)+". " + regex_to_display(r);
       var s = [];
       const labels = ["A","B","C","D"];
       for (var i = 0; i < 4; i++) {
@@ -260,7 +269,7 @@ function initializeGame() {
   document.getElementById("user-regex").innerHTML = "";
 
   usr_regex = '';
-  for (var i = 0; i < 3; i++) {
+  for (var i = 0; i < 1; i++) {
     var cand = '';
     do {
       cand = '';
@@ -290,7 +299,7 @@ function initializeGame() {
 }
 
 document.getElementById("user-regex").addEventListener('input', function (evt) {
-  const r = this.value;
+  const r = display_to_regex(this.value);
   
   const include_html = document.getElementById('include-list');
   const exclude_html = document.getElementById('exclude-list');
