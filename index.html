@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>CS 250 Regular Expression Game</title>
     <link rel="stylesheet" href="styles.css">
-    <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
 </head>
 <body>
     <!-- Header -->
@@ -17,7 +16,7 @@
     <main>
         <div class="content-card">
 
-            <div id="landingSection" class="landing-section">
+            <div class="landing-section">
                 <h2>Welcome!</h2>
                 <p>This site is intended to help CS 250 students
                     practice identifying and using regular expressions.    
@@ -25,9 +24,9 @@
                 </p>
                 <div class="skill-list">                 
                     <el>
-                    <li>Identify when a string matches a regular expression</li>
-                    <li>Create regular expressions which follow a given set of strings</li>
-                    <li>Discover how small pattern changes affect string behavior</li>
+                    <li>Skill 1</li>
+                    <li>Skill 2</li>
+                    <li>Skill 3</li>
                     </el> 
                 </div>
                     <p>In order to measure the effectiveness of this activity, 
@@ -39,7 +38,7 @@
             </div>
 
 
-            <div id="quiz0" class="quiz-section, hidden">
+            <div class="quiz-section">
                 <h2>Pre-Game Knowledge Check</h2>
 
                 <div class="overview"> Before beginning the game, you will take a short quiz to 
@@ -139,48 +138,6 @@
                 <button id="checkAnswersBtn">Check Solutions</button>
                 <button id="continueToGameBtn" class="hidden">Continue</button>
             </div>
-
-            <div id="gameSection" class="game-section, hidden">
-                <h2>Regular Expression Game</h2>
-
-                <div class="overview"> At each level of the game, you will input a regular expression which 
-                    includes or excludes the given strings. Your solution should only inlude the following characters
-                    { 1 , 0 , ( , ) , * , + } <br> <br>
-
-                    You must pass at least 10 levels to continue to the Post-Game Knowledge Check, but you are welcome to 
-                    play for longer.
-                </div>
-
-                <div class="input-container" > <input class="input" type="text" placeholder="Your Solution" id="user-regex"> </div>
-
-                <div class="level-counter" > <p>Level 3</p> </div>
-
-                <div class="rules-container">
-                    <div id="include-container" class="string-container"> 
-                        <div class="string-container-header">Include</div> 
-                        <div class="string-list"> 
-                            <el id="include-list">
-                                <li>String1 <i class="material-icons">check_small</i></li>
-                                <li>String2 <i class="material-icons">close_small</i></li>
-                                <li>String3 <i class="material-icons">check_small</i></li>
-                            </el> 
-                        </div> 
-                    </div>
-                    <div id="exclude-container" class="string-container"> 
-                        <div class="string-container-header">Exclude</div> 
-                            <div class="string-list"> 
-                                <el id="exclude-list">
-                                    <li>String1 <i class="material-icons">close_small</i></li>
-                                    <li>String2 <i class="material-icons">check_small</i></li>
-                                    <li>String3 <i class="material-icons">close_small</i></li>
-                                </el> 
-                            </div>  
-                        </div>
-                </div>
-
-                
-                <button id="continueToPostGameBtn" disabled="true">Continue</button>
-            </div>
         </div>
     </main>
 
@@ -194,7 +151,9 @@
     <footer>
         <p> <a href="https://www.cics.umass.edu">UMass Amherst CICS</a> CICS CS 250 Regular Expression Game. &copy 2025 by Ayesha Binte Mostofa, Carter Luck, Jackson Bibbens, and Sribatscha Maharana. <a id="privacyButton">Privacy Policy</a></p>
     </footer>
+    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+    <script type="module" src="backend.js"></script>
 
-    <script src="script.js"></script>
+    <script type="module" src="script.js"></script>
 </body>
 </html>

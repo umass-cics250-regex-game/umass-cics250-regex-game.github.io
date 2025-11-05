@@ -55,15 +55,15 @@ main {
 
 /* landing-section */
 .skill-list {
-    padding: 1rem 0 1rem 1.5rem;
+    padding-left: 1.5rem;
 }
 
 /* quiz-section */
-.quiz-section, .game-section {
+.quiz-section {
     margin-bottom: 2rem;
 }
 
-.quiz-section h2, .landing-section h2, .game-section h2 {
+.quiz-section h2, .landing-section h2 {
     color: var(--primary-color);
     margin-bottom: 1rem;
     font-size: 1.5rem;
@@ -91,6 +91,11 @@ main {
     display: flex;
     flex-direction: column;
     gap: 0.75rem;
+}
+
+.option.selected {
+  border-color: #2e7d32;
+  box-shadow: 0 0 0 2px rgba(46,125,50,0.15) inset;
 }
 
 .container {
@@ -128,7 +133,7 @@ button {
     margin-top: 1rem;
 }
 
-button:hover:enabled {
+button:hover {
     transform: translateY(-2px);
     box-shadow: 0 5px 20px rgba(0, 0, 0, 0.4);
 }
@@ -175,66 +180,6 @@ footer a:hover {
   z-index: 1000; 
 }
 
-.input-container {
-  display: flex;
-  justify-content: center;
-}
-
-.level-counter {
-    display: flex;
-    justify-content: center;
-
-    p {
-        font-size: large;
-        font-weight: bold;
-        color: var(--primary-color);
-        
-    }
-}
-
-.input {
-  width: 80%; 
-  padding: 10px;
-  margin-bottom: 15px; 
-  border: 3px solid var(--primary-color); 
-  border-radius: 5px; 
-  box-sizing: border-box; 
-  font-size: 16px;
-  align-self: center;
-}
-
-.rules-container {
-    display: flex;
-    flex-direction: row;
-    border: 3px solid var(--primary-color); 
-    border-radius: 5px; /* Slightly rounded corners */
-}
-
-.string-container {
-    flex-grow: 1;
-    border-right: 1px solid var(--primary-color);
-
-    .string-list {
-        padding: 1rem 0 1rem 1.5rem;
-    }
-}
-
-.string-container-header {
-    padding-left: 1rem;
-    border-bottom: 1px solid var(--primary-color);
-}
-
-.material-icons {
-    vertical-align: middle;
-    padding-bottom: 3px;
-}
-
-button:disabled {
-  background-color: #cccccc; /* Grey background */
-  color: #666666; /* Darker grey text */
-  cursor: not-allowed; /* Change cursor to indicate no interaction */
-  opacity: 0.7; /* Reduce opacity to make it appear faded */
-}
 
 /* Responsive */
 @media (max-width: 768px) {
