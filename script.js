@@ -4,7 +4,9 @@ document.addEventListener('DOMContentLoaded', function() {
   const infoWindow = document.getElementById('infoWindow');
   const closeButton = document.getElementById('closeButton');
   const continueButton = document.getElementById('continueToGameBtn');
+  const finishButton = document.getElementById('finishGameBtn');
   const getAnswersButton = document.getElementById('checkAnswersBtn');
+  const getSubmitButton = document.getElementById('submitAnswersBtn');
 
   // handles privacy policy popup window
   function showInfoWindow() {
@@ -20,7 +22,7 @@ document.addEventListener('DOMContentLoaded', function() {
   closeButton.addEventListener('click', hideInfoWindow);
 
   
-  /* Check solutions*/
+  /* Check solutions pre-quiz*/
   function checkSolutions() {
     window.scrollTo({
         top: 0, // Scrolls to the top of the page
@@ -31,6 +33,19 @@ document.addEventListener('DOMContentLoaded', function() {
   }
 
   getAnswersButton.addEventListener('click', checkSolutions);
+
+  /* Show answers postquiz */
+  function checkSolutionsPost() {
+    window.scrollTo({
+        top: 0, // Scrolls to the top of the page
+        behavior: 'smooth' // Provides a smooth scrolling animation
+    });
+    getSubmitButton.classList.add('hidden');
+  }
+
+  getSubmitButton.addEventListener('click', checkSolutionsPost);
+
+
 });
 
 /* Generate random regex, with probability of generating single character w
@@ -243,13 +258,20 @@ document.getElementById('checkAnswersBtn').addEventListener('click', function() 
 
 // handles continue (toGame) event 
 document.getElementById('continueToGameBtn').addEventListener('click', function() {
-  console.log("hello")
   const quiz0 = document.getElementById('quiz0');
   quiz0.classList.add('hidden');
 
   const gameSection = document.getElementById('gameSection');
   gameSection.classList.remove('hidden');
   initializeGame();
+});
+
+// handles finish game event
+document.getElementById('finishGameBtn').addEventListener('click', function(){
+  const quiz1 = document.getElementById('quiz1');
+  quiz1.classList.remove('hidden');
+  const gameSection = document.getElementById('gameSection');
+  gameSection.classList.add('hidden');
 });
 
 /* Password game stuff */
