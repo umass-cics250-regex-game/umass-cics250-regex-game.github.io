@@ -1,12 +1,11 @@
+import { saveScoreToSupabase } from "./backend.js";
 
 document.addEventListener('DOMContentLoaded', function() {
   const privacyButton = document.getElementById('privacyButton');
   const infoWindow = document.getElementById('infoWindow');
   const closeButton = document.getElementById('closeButton');
   const continueButton = document.getElementById('continueToGameBtn');
-  const finishButton = document.getElementById('finishGameBtn');
   const getAnswersButton = document.getElementById('checkAnswersBtn');
-  const getSubmitButton = document.getElementById('submitAnswersBtn');
 
   // handles privacy policy popup window
   function showInfoWindow() {
@@ -22,7 +21,7 @@ document.addEventListener('DOMContentLoaded', function() {
   closeButton.addEventListener('click', hideInfoWindow);
 
   
-  /* Check solutions pre-quiz*/
+  /* Check solutions*/
   function checkSolutions() {
     window.scrollTo({
         top: 0, // Scrolls to the top of the page
@@ -33,18 +32,6 @@ document.addEventListener('DOMContentLoaded', function() {
   }
 
   getAnswersButton.addEventListener('click', checkSolutions);
-
-  /* Show answers postquiz */
-  function checkSolutionsPost() {
-    window.scrollTo({
-        top: 0, // Scrolls to the top of the page
-        behavior: 'smooth' // Provides a smooth scrolling animation
-    });
-    getSubmitButton.classList.add('hidden');
-  }
-
-  getSubmitButton.addEventListener('click', checkSolutionsPost);
-
 
 });
 
@@ -90,23 +77,9 @@ function generateRegex() {
   return weighted_regex_gen(0.97)[0];
 }
 
-/* turn screen-readable regex into parseable regex */
-function display_to_regex(r) {
-  return r.replaceAll("+","|");
-}
-
-function regex_to_display(r) {
-  return r.replaceAll("|","+")
-}
-
 /* Check if string s is a match for regex r*/
 function match(s, r) {
-  var re;
-  try {
-    re = new RegExp("^(" + r + ")$");
-  } catch (e) {
-    return false;
-  }
+  const re = new RegExp("^(" + r + ")$");
   const result = re.test(s);
   return result;
 }
@@ -115,25 +88,6 @@ function genExample(r) {
   if (r.length <= 1) {
     return r; // single character or empty, it's got to be 0 or 1 or ''
   }
-  var depth = 0;
-  var pos = [];
-  for (var i = 0; i < r.length; i++) {
-    if (r[i] == "(") {
-      depth += 1;
-    } else if (r[i] == ")") {
-      depth -= 1;
-    } else if (r[i] == "|" && depth == 0) {
-    pos.push(i);
-    }
-  }
-  if (pos.length > 0) { // or without parentheses around it
-    pos.unshift(-1);
-    pos.push(r.length);
-    var which = Math.floor(Math.random()*(pos.length-1));
-    return genExample(r.slice(pos[which]+1,pos[which+1]));
-  }
-
-
   if (r[0] != "(" && r[1] != "*") {
     return r[0] + genExample(r.slice(1)); // first character is not in an or, and not kleene starred, so it must be just a 0 or 1 at the start of the string
   } 
@@ -207,13 +161,12 @@ function perturbString(s, n) {
 
 /* given a regex, an array of accept strings and an array of reject strings, return a string (in neither the accept nor reject arrays) and a bool that indicates whether the regex should accept it or not */
 function genNewExample(r, accept, reject) {
-  var s;
   do {
-    s = genExample(r);
+    var s = genExample(r);
     if (Math.random() > 0.5) {
       s = perturbString(s,1);
     }
-  } while (accept.includes(s) || reject.includes(s));
+  } while (!accept.includes(s) && !reject.includes(s));
   return [s, !match(s,r)];
 }
 
@@ -221,7 +174,7 @@ function genNewExample(r, accept, reject) {
 document.getElementById('beginBtn').addEventListener('click', function() {
     for (var j = 0; j<10; j++) {
       var r = generateRegex()
-      document.getElementById('question'+String(j)).innerHTML = String(j+1)+". " + regex_to_display(r);
+      document.getElementById('question'+String(j)).innerHTML = String(j+1)+". " + r;
       var s = [];
       const labels = ["A","B","C","D"];
       for (var i = 0; i < 4; i++) {
@@ -241,140 +194,25 @@ document.getElementById('beginBtn').addEventListener('click', function() {
         top: 0, // Scrolls to the top of the page
         behavior: 'smooth' // Provides a smooth scrolling animation
     });
-
-    const quiz0 = document.getElementById('quiz0');
-    const landingSection = document.getElementById('landingSection');
-    quiz0.classList.remove("hidden")
-    landingSection.classList.add("hidden")
 });
 
 // handles checkAnswer event 
-document.getElementById('checkAnswersBtn').addEventListener('click', function() {
-    window.scrollTo({
-        top: 0, // Scrolls to the top of the page
-        behavior: 'smooth' // Provides a smooth scrolling animation
-    });
-});
+// Handles checkAnswers event
+document.getElementById('checkAnswersBtn').addEventListener('click', async function() {
+  const continueButton = document.getElementById('continueToGameBtn');
+  const getAnswersButton = document.getElementById('checkAnswersBtn');
 
-// handles continue (toGame) event 
-document.getElementById('continueToGameBtn').addEventListener('click', function() {
-  const quiz0 = document.getElementById('quiz0');
-  quiz0.classList.add('hidden');
+  // Example random scores
+  const score1 = Math.floor(Math.random() * 100);
+  const score2 = Math.floor(Math.random() * 100);
 
-  const gameSection = document.getElementById('gameSection');
-  gameSection.classList.remove('hidden');
-  initializeGame();
-});
-
-// handles finish game event
-document.getElementById('finishGameBtn').addEventListener('click', function(){
-  const quiz1 = document.getElementById('quiz1');
-  quiz1.classList.remove('hidden');
-  const gameSection = document.getElementById('gameSection');
-  gameSection.classList.add('hidden');
-});
-
-/* Password game stuff */
-var include_strs = [];
-var exclude_strs = [];
-var usr_regex = '';
-
-function initializeGame() {
-  include_strs = [];
-  exclude_strs = [];
-  
-  const include_html = document.getElementById('include-list');
-  const exclude_html = document.getElementById('exclude-list');
-  include_html.innerHTML = "";
-  exclude_html.innerHTML = "";
-
-  document.getElementById("user-regex").innerHTML = "";
-
-  usr_regex = '';
-  for (var i = 0; i < 1; i++) {
-    var cand = '';
-    do {
-      cand = '';
-      for (var k=0; k<10; k++) {
-        cand += '01'.charAt(Math.floor(Math.random() * 2));
-      }
-    } while (include_strs.includes(cand) || exclude_strs.includes(cand));
-    include_strs.push(cand);
-    
-    var entry = document.createElement('li');
-    entry.appendChild(document.createTextNode(cand+" (⨉)"));
-    include_html.appendChild(entry);
-
-    cand = '';
-    do {
-      cand = '';
-      for (var k=0; k<10; k++) {
-        cand += '01'.charAt(Math.floor(Math.random() * 2));
-      }
-    } while (include_strs.includes(cand) || exclude_strs.includes(cand));
-    exclude_strs.push(cand);
-
-    var entry = document.createElement('li');
-    entry.appendChild(document.createTextNode(cand+" (✓)"));
-    exclude_html.appendChild(entry);
-  }
-}
-
-document.getElementById("user-regex").addEventListener('input', function (evt) {
-  const r = display_to_regex(this.value);
-  
-  const include_html = document.getElementById('include-list');
-  const exclude_html = document.getElementById('exclude-list');
-  include_html.innerHTML = "";
-  exclude_html.innerHTML = "";
-  
-  var all_met = true;
-
-  for (var i = 0; i < include_strs.length; i++) {
-    s = include_strs[i]
-    matches = match(s,r);
-
-    if (matches) {
-      var entry = document.createElement('li');
-      entry.appendChild(document.createTextNode(s+" (✓)"));
-      include_html.appendChild(entry);
-    } else {
-      var entry = document.createElement('li');
-      entry.appendChild(document.createTextNode(s+" (⨉)"));
-      include_html.appendChild(entry);
-      all_met = false;
-    }
+  // Save scores (function from backend.js)
+  if (typeof saveScoreToSupabase === "function") {
+    await saveScoreToSupabase(score1, score2);
   }
 
-  for (var i = 0; i < exclude_strs.length; i++) {
-    s = exclude_strs[i];
-    matches = match(s,r);
-
-    if (!matches) {
-      var entry = document.createElement('li');
-      entry.appendChild(document.createTextNode(s+" (✓)"));
-      exclude_html.appendChild(entry);
-    } else {
-      var entry = document.createElement('li');
-      entry.appendChild(document.createTextNode(s+" (⨉)"));
-      exclude_html.appendChild(entry);
-      all_met = false;
-    }
-  }
-
-  if (all_met) {
-    var [c,b] = genNewExample(r,include_strs,exclude_strs);
-    if (b) {
-      include_strs.push(c);
-      var entry = document.createElement('li');
-      entry.appendChild(document.createTextNode(c+" (⨉)"));
-      include_html.appendChild(entry);
-    } else {
-      exclude_strs.push(c);
-      var entry = document.createElement('li');
-      entry.appendChild(document.createTextNode(c+" (⨉)"));
-      exclude_html.appendChild(entry);
-    }
-  }
-
+  window.scrollTo({
+    top: 0,
+    behavior: 'smooth'
+  });
 });
