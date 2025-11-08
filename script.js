@@ -1,3 +1,18 @@
+//#import { saveScoreToSupabase } from "./backend.js";
+// import { saveSessionResult } from "./backend.js";
+import { saveScoreToSupabase } from "./backend.js";
+
+let score1 = 0;       // stays 0 until you add real scoring later
+let score2 = 0;
+// async function saveSession() {
+//   const row = {
+//     session_id: sessionId,
+//     score_before: scoreBefore,
+//     levels_completed: levelsCompleted,
+//     timestamp: new Date().toISOString()
+//   };
+//   await saveScoreToSuResult(row);   // writes to DB
+// }
 
 document.addEventListener('DOMContentLoaded', function() {
   const privacyButton = document.getElementById('privacyButton');
@@ -7,6 +22,47 @@ document.addEventListener('DOMContentLoaded', function() {
   const finishButton = document.getElementById('finishGameBtn');
   const getAnswersButton = document.getElementById('checkAnswersBtn');
   const getSubmitButton = document.getElementById('submitAnswersBtn');
+
+
+  // NEW: these match your HTML structure
+  const quizSection  = document.querySelector('.quiz-section');
+  const contentCard  = document.querySelector('.content-card');
+
+  function showInfoWindow() { infoWindow.classList.remove('hidden'); }
+  function hideInfoWindow() { infoWindow.classList.add('hidden'); }
+
+  privacyButton.addEventListener('click', showInfoWindow);
+  closeButton.addEventListener('click', hideInfoWindow);
+
+  // Already defined elsewhere: checkSolutions() computes scoreBefore and reveals Continue
+  getAnswersButton.addEventListener('click', checkSolutions);
+
+  // NEW: what Continue should do in “pre-quiz only” mode
+  continueButton.addEventListener('click', () => {
+    // hide the quiz block
+    quizSection?.classList.add('hidden');
+
+  // show a simple completion screen
+    if (contentCard) {
+      contentCard.innerHTML = `
+        <h2>Thank you!</h2>
+        // <p>Your pre-quiz score is <strong>${scoreBefore ?? 'N/A'}</strong>.</p>
+        <p>Your response has been recorded. You can now enjoy the regex game!</p>
+      `;
+    }
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  });
+});
+
+document.addEventListener('DOMContentLoaded', function() {
+  const privacyButton = document.getElementById('privacyButton');
+  const infoWindow = document.getElementById('infoWindow');
+  const closeButton = document.getElementById('closeButton');
+  const continueButton = document.getElementById('continueToGameBtn');
+  const getAnswersButton = document.getElementById('checkAnswersBtn');
+
+  const quizSection  = document.querySelector('.quiz-section');
+  const contentCard  = document.querySelector('.content-card');
 
   // handles privacy policy popup window
   function showInfoWindow() {
@@ -23,25 +79,126 @@ document.addEventListener('DOMContentLoaded', function() {
 
   
   /* Check solutions pre-quiz*/
-  function checkSolutions() {
-    window.scrollTo({
-        top: 0, // Scrolls to the top of the page
-        behavior: 'smooth' // Provides a smooth scrolling animation
-    });
-    continueButton.classList.remove('hidden');
-    getAnswersButton.classList.add('hidden');
+  // function checkSolutions() {
+  //   window.scrollTo({
+  //       top: 0, // Scrolls to the top of the page
+  //       behavior: 'smooth' // Provides a smooth scrolling animation
+  //   });
+  //   continueButton.classList.remove('hidden');
+  //   getAnswersButton.classList.add('hidden');
+  // }
+
+  async function checkSolutions() {
+  // normalize
+  const normalizeRegex = (r) => r.replaceAll("+", "|");
+
+  let score = 0;
+
+  // 10 questions
+  for (let j = 0; j < 10; j++) {
+    // 1) get regex displayed in question
+    const qEl = document.getElementById(`question${j}`);
+    if (!qEl) continue;
+    // remove number
+    let r = qEl.textContent.trim().replace(/^\d+\.\s*/, "");
+    r = normalizeRegex(r);
+
+    // 2) option chosen
+    let selected = -1;
+    for (let i = 0; i < 4; i++) {
+      const optEl = document.getElementById(`q${j}a${i}`);
+      if (optEl.classList.contains('selected')) {
+        selected = i;
+        break;
+      }
+    }
+    if (selected === -1) continue; //0 for no selection
+
+    const correctIndices = [];
+    for (let i = 0; i < 4; i++) {
+      const optEl = document.getElementById(`q${j}a${i}`);
+      let s = optEl.textContent.replace(/^[A-D]\)\s*/, '').trim();
+      if (s === 'λ') s = ''; // empty string
+      if (match(s, r)) correctIndices.push(i);
+    }
+
+    if (correctIndices.includes(selected)) score += 1;
   }
+
+  score1 = score;
+
+  // if (typeof saveSession === "function") {
+  //    await saveScoreToSupabase(score1, score2);
+  // }
+
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+  const continueButton = document.getElementById('continueToGameBtn');
+  const getAnswersButton = document.getElementById('checkAnswersBtn');
+  continueButton.classList.remove('hidden');
+  getAnswersButton.classList.add('hidden');
+}
+
 
   getAnswersButton.addEventListener('click', checkSolutions);
 
-  /* Show answers postquiz */
-  function checkSolutionsPost() {
-    window.scrollTo({
-        top: 0, // Scrolls to the top of the page
-        behavior: 'smooth' // Provides a smooth scrolling animation
-    });
-    getSubmitButton.classList.add('hidden');
+  // /* Show answers postquiz */
+  // function checkSolutionsPost() {
+  //   window.scrollTo({
+  //       top: 0, // Scrolls to the top of the page
+  //       behavior: 'smooth' // Provides a smooth scrolling animation
+  //   });
+  //   getSubmitButton.classList.add('hidden');
+  // }
+
+    async function checkSolutionsPost() {
+  // normalize
+  const normalizeRegex = (r) => r.replaceAll("+", "|");
+
+  let score = 0;
+
+  // 10 questions
+  for (let j = 0; j < 10; j++) {
+    // 1) get regex displayed in question
+    const qEl = document.getElementById(`question${j}`);
+    if (!qEl) continue;
+    // remove number
+    let r = qEl.textContent.trim().replace(/^\d+\.\s*/, "");
+    r = normalizeRegex(r);
+
+    // 2) option chosen
+    let selected = -1;
+    for (let i = 0; i < 4; i++) {
+      const optEl = document.getElementById(`q${j}a${i}`);
+      if (optEl.classList.contains('selected')) {
+        selected = i;
+        break;
+      }
+    }
+    if (selected === -1) continue; //0 for no selection
+
+    const correctIndices = [];
+    for (let i = 0; i < 4; i++) {
+      const optEl = document.getElementById(`q${j}a${i}`);
+      let s = optEl.textContent.replace(/^[A-D]\)\s*/, '').trim();
+      if (s === 'λ') s = ''; // empty string
+      if (match(s, r)) correctIndices.push(i);
+    }
+
+    if (correctIndices.includes(selected)) score += 1;
   }
+
+  score2 = score;
+      
+  if (typeof saveScoreToSupabase === "function") {
+    await saveScoreToSupabase(score1, score2);
+  }
+
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+  const continueButton = document.getElementById('continueToGameBtn');
+  const getAnswersButton = document.getElementById('checkAnswersBtn');
+  continueButton.classList.remove('hidden');
+  getAnswersButton.classList.add('hidden');
+}
 
   getSubmitButton.addEventListener('click', checkSolutionsPost);
 
