@@ -1,11 +1,291 @@
-//#import { saveScoreToSupabase } from "./backend.js";
-// import { saveSessionResult } from "./backend.js";
+// === IMPORTS ===
 import { saveScoreToSupabase } from "./backend.js";
 
-let score1 = 0;       // stays 0 until you add real scoring later
+// === SESSION VARIABLES ===
+let score1 = 0;
 let score2 = 0;
-// async function saveSession() {
-//   const row = {
+
+// === DOMContentLoaded ===
+document.addEventListener("DOMContentLoaded", function () {
+  const privacyButton = document.getElementById("privacyButton");
+  const infoWindow = document.getElementById("infoWindow");
+  const closeButton = document.getElementById("closeButton");
+  const continueButton = document.getElementById("continueToGameBtn");
+  const getAnswersButtonPre = document.getElementById("checkAnswersBtn");
+  const getAnswersButtonPost = document.getElementById("checkAnswersBtnPost");
+
+  // === Privacy popup ===
+  if (privacyButton && infoWindow && closeButton) {
+    privacyButton.addEventListener("click", () => infoWindow.classList.remove("hidden"));
+    closeButton.addEventListener("click", () => infoWindow.classList.add("hidden"));
+  }
+
+  // === Option selection (same for all quizzes) ===
+  document.addEventListener("click", function (event) {
+    const option = event.target.closest(".option");
+    if (!option) return;
+    const parent = option.closest(".options");
+    if (!parent) return;
+    parent.querySelectorAll(".option").forEach((o) => o.classList.remove("selected"));
+    option.classList.add("selected");
+  });
+
+  // === Pre-Quiz Check Solutions ===
+  if (getAnswersButtonPre) {
+    getAnswersButtonPre.addEventListener("click", function () {
+      score1 = calculateQuizScore(".pre-quiz");
+      alert(`Pre-quiz completed! Your score: ${score1}`);
+    });
+  }
+
+  // === Post-Quiz Check Solutions ===
+  if (getAnswersButtonPost) {
+    getAnswersButtonPost.addEventListener("click", async function () {
+      score2 = calculateQuizScore(".post-quiz");
+      alert(`Post-quiz completed! Your score: ${score2}`);
+
+      // === Send both scores to database ===
+      try {
+        await saveScoreToSupabase(score1, score2);
+        alert("Scores successfully saved to database!");
+      } catch (error) {
+        console.error("Error saving scores:", error);
+        alert("There was a problem saving your scores.");
+      }
+    });
+  }
+
+  // === Continue to Game button ===
+  if (continueButton) {
+    continueButton.addEventListener("click", () => {
+      const quizSection = document.querySelector(".quiz-section");
+      const contentCard = document.querySelector(".content-card");
+      if (quizSection) quizSection.classList.add("hidden");
+      if (contentCard) {
+        contentCard.innerHTML = `
+          <h2>Thank you!</h2>
+          <p>Your pre-quiz score is <strong>${score1 ?? "N/A"}</strong>.</p>
+          <p>Your response has been recorded. You can now enjoy the regex game!</p>
+        `;
+      }
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    });
+  }
+});
+
+// === QUIZ SCORING FUNCTION ===
+function calculateQuizScore(quizSelector) {
+  const quiz = document.querySelector(quizSelector);
+  if (!quiz) return 0;
+  const selectedOptions = quiz.querySelectorAll(".option.selected");
+  let score = 0;
+  selectedOptions.forEach((opt) => {
+    if (opt.dataset.correct === "true") score++;
+  });
+  return score;
+}
+
+/* ================================
+   QUIZ GENERATION AND SELECTION LOGIC
+================================== */
+
+function weighted_regex_gen(w) {
+  if (Math.random() > w) {
+    const possibilities = ["0", "1"];
+    return [possibilities[Math.floor(Math.random() * 2)], 0];
+  }
+  const choice = Math.floor(Math.random() * 100);
+  if (choice < 15) {
+    const [a, x] = weighted_regex_gen(w * w);
+    const [b, y] = weighted_regex_gen(w * w);
+    if (a === b) return [a, x];
+    return ["(" + a + "|" + b + ")", 1];
+  } else if (choice < 85) {
+    const [a] = weighted_regex_gen(w * w);
+    const [b] = weighted_regex_gen(w * w);
+    return [a + b, 2];
+  } else {
+    const [a] = weighted_regex_gen(w * w);
+    return [a.length === 1 ? a + "*" : "(" + a + ")*", 3];
+  }
+}
+
+function generateRegex() {
+  return weighted_regex_gen(0.97)[0];
+}
+function display_to_regex(r) {
+  return r.replaceAll("+", "|");
+}
+function regex_to_display(r) {
+  return r.replaceAll("|", "+");
+}
+function match(s, r) {
+  try {
+    return new RegExp("^(" + r + ")$").test(s);
+  } catch {
+    return false;
+  }
+}
+
+/* -------- Begin Quiz -------- */
+document.getElementById("beginBtn").addEventListener("click", function () {
+  for (let j = 0; j < 10; j++) {
+    const r = generateRegex();
+    document.getElementById(`question${j}`).innerHTML = `${j + 1}. ${regex_to_display(r)}`;
+    const labels = ["A", "B", "C", "D"];
+    for (let i = 0; i < 4; i++) {
+      let s0 = genExample(r);
+      if (Math.random() > 0.5) s0 = perturbString(s0, 1);
+      if (s0 === "") s0 = "λ";
+      const optEl = document.getElementById(`q${j}a${i}`);
+      optEl.innerHTML = `${labels[i]}) ${s0}`;
+      optEl.classList.remove("selected");
+
+      // ✅ FIX: allow selecting answers
+      optEl.addEventListener("click", () => {
+        // remove 'selected' from other options in the same question
+        for (let k = 0; k < 4; k++) {
+          document.getElementById(`q${j}a${k}`).classList.remove("selected");
+        }
+        optEl.classList.add("selected");
+      });
+    }
+  }
+
+  window.scrollTo({ top: 0, behavior: "smooth" });
+  document.getElementById("quiz0").classList.remove("hidden");
+  document.getElementById("landingSection").classList.add("hidden");
+});
+
+/* -------- Continue / Finish Logic -------- */
+document.getElementById("continueToGameBtn").addEventListener("click", function () {
+  document.getElementById("quiz0").classList.add("hidden");
+  const gameSection = document.getElementById("gameSection");
+  gameSection.classList.remove("hidden");
+  initializeGame();
+});
+
+document.getElementById("finishGameBtn").addEventListener("click", function () {
+  document.getElementById("quiz1").classList.remove("hidden");
+  document.getElementById("gameSection").classList.add("hidden");
+});
+
+/* ========================================
+   Regex Game (Password Game)
+======================================== */
+
+var include_strs = [];
+var exclude_strs = [];
+var usr_regex = "";
+
+function initializeGame() {
+  include_strs = [];
+  exclude_strs = [];
+  const include_html = document.getElementById("include-list");
+  const exclude_html = document.getElementById("exclude-list");
+  include_html.innerHTML = "";
+  exclude_html.innerHTML = "";
+  document.getElementById("user-regex").innerHTML = "";
+
+  for (let i = 0; i < 1; i++) {
+    let cand = "";
+    do {
+      cand = "";
+      for (let k = 0; k < 10; k++) cand += "01".charAt(Math.floor(Math.random() * 2));
+    } while (include_strs.includes(cand) || exclude_strs.includes(cand));
+    include_strs.push(cand);
+    const entry1 = document.createElement("li");
+    entry1.textContent = `${cand} (⨉)`;
+    include_html.appendChild(entry1);
+
+    do {
+      cand = "";
+      for (let k = 0; k < 10; k++) cand += "01".charAt(Math.floor(Math.random() * 2));
+    } while (include_strs.includes(cand) || exclude_strs.includes(cand));
+    exclude_strs.push(cand);
+    const entry2 = document.createElement("li");
+    entry2.textContent = `${cand} (✓)`;
+    exclude_html.appendChild(entry2);
+  }
+}
+
+document.getElementById("user-regex").addEventListener("input", function () {
+  const r = display_to_regex(this.value);
+  const include_html = document.getElementById("include-list");
+  const exclude_html = document.getElementById("exclude-list");
+  include_html.innerHTML = "";
+  exclude_html.innerHTML = "";
+
+  let all_met = true;
+
+  for (const s of include_strs) {
+    const matches = match(s, r);
+    const entry = document.createElement("li");
+    entry.textContent = `${s} (${matches ? "✓" : "⨉"})`;
+    include_html.appendChild(entry);
+    if (!matches) all_met = false;
+  }
+
+  for (const s of exclude_strs) {
+    const matches = match(s, r);
+    const entry = document.createElement("li");
+    entry.textContent = `${s} (${!matches ? "✓" : "⨉"})`;
+    exclude_html.appendChild(entry);
+    if (matches) all_met = false;
+  }
+
+  if (all_met) {
+    const [c, b] = genNewExample(r, include_strs, exclude_strs);
+    const entry = document.createElement("li");
+    entry.textContent = `${c} (⨉)`;
+    if (b) {
+      include_strs.push(c);
+      include_html.appendChild(entry);
+    } else {
+      exclude_strs.push(c);
+      exclude_html.appendChild(entry);
+    }
+  }
+});
+
+/* Helper functions: genExample, perturbString, genNewExample */
+
+function genExample(r) {
+  if (r.length <= 1) return r;
+  const depth = [];
+  for (let i = 0; i < r.length; i++) if (r[i] === "|") depth.push(i);
+  if (depth.length > 0) {
+    const which = Math.floor(Math.random() * depth.length);
+    return genExample(r.slice(0, depth[which])) || genExample(r.slice(depth[which] + 1));
+  }
+  if (r.includes("*")) {
+    const core = r.replace(/\*/g, "");
+    return core.repeat(Math.floor(Math.random() * 3));
+  }
+  return r;
+}
+
+function perturbString(s, n) {
+  if (n === 0) return s;
+  if (s.length === 0)
+    return perturbString(String(Math.floor(Math.random() * 2)), n - 1);
+  const opt = Math.random() * 3;
+  const ind = Math.floor(Math.random() * s.length);
+  if (opt > 2)
+    return perturbString(s.slice(0, ind) + String(Math.floor(Math.random() * 2)) + s.slice(ind), n - 1);
+  if (opt > 1) return perturbString(s.slice(0, ind) + s.slice(ind + 1), n - 1);
+  return perturbString(s.slice(0, ind) + String(1 - Number(s[ind])) + s.slice(ind + 1), n - 1);
+}
+
+function genNewExample(r, accept, reject) {
+  let s;
+  do {
+    s = genExample(r);
+    if (Math.random() > 0.5) s = perturbString(s, 1);
+  } while (accept.includes(s) || reject.includes(s));
+  return [s, !match(s, r)];
+}
+
 //     session_id: sessionId,
 //     score_before: scoreBefore,
 //     levels_completed: levelsCompleted,
