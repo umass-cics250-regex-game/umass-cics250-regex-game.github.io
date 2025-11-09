@@ -15,71 +15,6 @@ async function saveSession() {
   await saveSessionResult(scoreBefore,scoreAfter);   // writes to DB
 }
 
-
-document.addEventListener('DOMContentLoaded', function() {
-  const privacyButton = document.getElementById('privacyButton');
-  const infoWindow = document.getElementById('infoWindow');
-  const closeButton = document.getElementById('closeButton');
-  const continueButton = document.getElementById('continueToGameBtn');
-  const finishButton = document.getElementById('finishGameBtn');
-  const getAnswersButton = document.getElementById('checkAnswersBtn');
-  const getSubmitButton = document.getElementById('submitAnswersBtn');
-
-
-  // NEW: these match your HTML structure
-  const quizSection  = document.querySelector('.quiz-section');
-  const contentCard  = document.querySelector('.content-card');
-
-  function showInfoWindow() { infoWindow.classList.remove('hidden'); }
-  function hideInfoWindow() { infoWindow.classList.add('hidden'); }
-
-  privacyButton.addEventListener('click', showInfoWindow);
-  closeButton.addEventListener('click', hideInfoWindow);
-
-  // Already defined elsewhere: checkSolutions() computes scoreBefore and reveals Continue
-  getAnswersButton.addEventListener('click', checkSolutions);
-  getSubmitButton.addEventListener('click', checkSolutionsPost);
-
-  // NEW: what Continue should do in “pre-quiz only” mode
-  continueButton.addEventListener('click', () => {
-    // hide the quiz block
-    quizSection?.classList.add('hidden');
-
-  // show a simple completion screen
-    if (contentCard) {
-      contentCard.innerHTML = `
-        <h2>Thank you!</h2>
-        // <p>Your pre-quiz score is <strong>${scoreBefore ?? 'N/A'}</strong>.</p>
-        <p>Your response has been recorded. You can now enjoy the regex game!</p>
-      `;
-    }
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  });
-});
-
-document.addEventListener('DOMContentLoaded', function() {
-  const privacyButton = document.getElementById('privacyButton');
-  const infoWindow = document.getElementById('infoWindow');
-  const closeButton = document.getElementById('closeButton');
-  const continueButton = document.getElementById('continueToGameBtn');
-  const getAnswersButton = document.getElementById('checkAnswersBtn');
-
-  const quizSection  = document.querySelector('.quiz-section');
-  const contentCard  = document.querySelector('.content-card');
-
-  // handles privacy policy popup window
-  function showInfoWindow() {
-    infoWindow.classList.remove('hidden');
-  } 
-
-  function hideInfoWindow() {
-    infoWindow.classList.add('hidden');
-  }
-
-  privacyButton.addEventListener('click', showInfoWindow);
-
-  closeButton.addEventListener('click', hideInfoWindow);
-});
   
   /* Check solutions pre-quiz*/
   // function checkSolutions() {
@@ -140,6 +75,49 @@ document.addEventListener('DOMContentLoaded', function() {
   continueButton.classList.remove('hidden');
   getAnswersButton.classList.add('hidden');
 }
+
+document.addEventListener('DOMContentLoaded', function() {
+  const privacyButton = document.getElementById('privacyButton');
+  const infoWindow = document.getElementById('infoWindow');
+  const closeButton = document.getElementById('closeButton');
+  const continueButton = document.getElementById('continueToGameBtn');
+  const finishButton = document.getElementById('finishGameBtn');
+  const getAnswersButton = document.getElementById('checkAnswersBtn');
+  const getSubmitButton = document.getElementById('submitAnswersBtn');
+
+
+  // NEW: these match your HTML structure
+  const quizSection  = document.querySelector('.quiz-section');
+  const contentCard  = document.querySelector('.content-card');
+
+  function showInfoWindow() { infoWindow.classList.remove('hidden'); }
+  function hideInfoWindow() { infoWindow.classList.add('hidden'); }
+
+  privacyButton.addEventListener('click', showInfoWindow);
+  closeButton.addEventListener('click', hideInfoWindow);
+
+  // Already defined elsewhere: checkSolutions() computes scoreBefore and reveals Continue
+  getAnswersButton.addEventListener('click', checkSolutions);
+  getSubmitButton.addEventListener('click', checkSolutionsPost);
+
+  // NEW: what Continue should do in “pre-quiz only” mode
+  continueButton.addEventListener('click', () => {
+    // hide the quiz block
+    quizSection?.classList.add('hidden');
+
+  // show a simple completion screen
+    if (contentCard) {
+      contentCard.innerHTML = `
+        <h2>Thank you!</h2>
+        // <p>Your pre-quiz score is <strong>${scoreBefore ?? 'N/A'}</strong>.</p>
+        <p>Your response has been recorded. You can now enjoy the regex game!</p>
+      `;
+    }
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  });
+});
+
+
 
 
   // getAnswersButton.addEventListener('click', checkSolutions);
