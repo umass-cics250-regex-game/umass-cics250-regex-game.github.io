@@ -157,13 +157,6 @@ document.addEventListener('DOMContentLoaded', function() {
     quizSection?.classList.add('hidden');
 
   // show a simple completion screen
-    if (contentCard) {
-      contentCard.innerHTML = `
-        <h2>Thank you!</h2>
-        // <p>Your pre-quiz score is <strong>${scoreBefore ?? 'N/A'}</strong>.</p>
-        <p>Your response has been recorded. You can now enjoy the regex game!</p>
-      `;
-    }
     window.scrollTo({ top: 0, behavior: 'smooth' });
   });
 });
