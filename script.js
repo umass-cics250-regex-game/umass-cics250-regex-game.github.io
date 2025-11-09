@@ -117,7 +117,7 @@ async function checkSolutionsPost() {
   scoreAfter = score;
       
   if (typeof saveScoreToSupabase === "function") {
-    await saveScoreToSupabase(score1, score2);
+    await saveScoreToSupabase(scoreBefore, scoreAfter);
   }
 
   window.scrollTo({ top: 0, behavior: 'smooth' });
