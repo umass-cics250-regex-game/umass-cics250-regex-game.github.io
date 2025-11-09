@@ -1,17 +1,20 @@
-// import { saveSessionResult } from "./backend.js";
 import { saveScoreToSupabase } from "./backend.js";
+import { saveSessionResult } from "./backend.js";
 
-let score1 = 0;       // stays 0 until you add real scoring later
-let score2 = 0;
-// async function saveSession() {
-//   const row = {
-//     session_id: sessionId,
-//     score_before: scoreBefore,
-//     levels_completed: levelsCompleted,
-//     timestamp: new Date().toISOString()
-//   };
-//   await saveScoreToSuResult(row);   // writes to DB
-// }
+const sessionId = Date.now().toString(36) + Math.random().toString(36).slice(2);
+let scoreBefore = 0;       // stays 0 until you add real scoring later
+let scoreAfter = 0;
+
+async function saveSession() {
+  // const row = {
+  //   session_id: sessionId,
+  //   score_before: scoreBefore,
+  //   levels_completed: levelsCompleted,
+  //   timestamp: new Date().toISOString()
+  // };
+  await saveSessionResult(scoreBefore,scoreAfter);   // writes to DB
+}
+
 
 document.addEventListener('DOMContentLoaded', function() {
   const privacyButton = document.getElementById('privacyButton');
@@ -126,9 +129,9 @@ document.addEventListener('DOMContentLoaded', function() {
 
   score1 = score;
 
-  // if (typeof saveSession === "function") {
-  //    await saveScoreToSupabase(score1, score2);
-  // }
+  if (typeof saveSession === "function") {
+    await saveSession(); 
+  }
 
   window.scrollTo({ top: 0, behavior: 'smooth' });
   const continueButton = document.getElementById('continueToGameBtn');
