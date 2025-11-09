@@ -366,6 +366,19 @@ document.getElementById('beginBtn').addEventListener('click', function() {
       }
     }
 
+    for (let j = 0; j < 10; j++) {
+      for (let i = 0; i < 4; i++) {
+        const opt = document.getElementById(`q${j}a${i}`);
+        opt.addEventListener('click', () => {
+          // selection
+          for (let k = 0; k < 4; k++) {
+            document.getElementById(`q${j}a${k}`).classList.remove('selected');
+          }
+          opt.classList.add('selected');
+        });
+      }
+    }
+
     window.scrollTo({
         top: 0, // Scrolls to the top of the page
         behavior: 'smooth' // Provides a smooth scrolling animation
