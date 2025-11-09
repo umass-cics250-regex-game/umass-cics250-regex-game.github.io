@@ -19,7 +19,8 @@ export async function saveScoreToSupabase(score1, score2) {
 
 
 
-export async function saveSessionResult(result) {
+//export async function saveSessionResult(result) {
+  export async function saveSessionResult(score1, score2) {
   // result should look like:
   // {
   //   session_id: 
@@ -39,11 +40,9 @@ export async function saveSessionResult(result) {
   // } else {
   //   console.log("Session result saved:", data);
   // }
-
-  
   const { data, error } = await supabase
-    .from("scores")
-    .insert([{ score1, score2 }]);
+  .from("scores")
+  .insert([{ score1, score2 }]);
 
   if (error) {
     console.error("Error saving score:", error);
