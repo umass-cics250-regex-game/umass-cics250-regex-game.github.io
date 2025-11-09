@@ -65,9 +65,9 @@ async function saveSession() {
 
   scoreBefore = score;
 
-  if (typeof saveSession === "function") {
-    await saveSession(); 
-  }
+  // if (typeof saveSession === "function") {
+  //   await saveSession(); 
+  // }
 
   window.scrollTo({ top: 0, behavior: 'smooth' });
   const continueButton = document.getElementById('continueToGameBtn');
