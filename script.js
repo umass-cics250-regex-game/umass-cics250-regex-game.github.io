@@ -76,6 +76,57 @@ async function saveSession() {
   getAnswersButton.classList.add('hidden');
 }
 
+
+async function checkSolutionsPost() {
+  // normalize
+  const normalizeRegex = (r) => r.replaceAll("+", "|");
+
+  let score = 0;
+
+  // 10 questions
+  for (let j = 0; j < 10; j++) {
+    // 1) get regex displayed in question
+    const qEl = document.getElementById(`question${j}`);
+    if (!qEl) continue;
+    // remove number
+    let r = qEl.textContent.trim().replace(/^\d+\.\s*/, "");
+    r = normalizeRegex(r);
+
+    // 2) option chosen
+    let selected = -1;
+    for (let i = 0; i < 4; i++) {
+      const optEl = document.getElementById(`q${j}a${i}`);
+      if (optEl.classList.contains('selected')) {
+        selected = i;
+        break;
+      }
+    }
+    if (selected === -1) continue; //0 for no selection
+
+    const correctIndices = [];
+    for (let i = 0; i < 4; i++) {
+      const optEl = document.getElementById(`q${j}a${i}`);
+      let s = optEl.textContent.replace(/^[A-D]\)\s*/, '').trim();
+      if (s === 'λ') s = ''; // empty string
+      if (match(s, r)) correctIndices.push(i);
+    }
+
+    if (correctIndices.includes(selected)) score += 1;
+  }
+
+  score2 = score;
+      
+  if (typeof saveScoreToSupabase === "function") {
+    await saveScoreToSupabase(score1, score2);
+  }
+
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+  const continueButton = document.getElementById('continueToGameBtn');
+  const getAnswersButton = document.getElementById('checkAnswersBtn');
+  continueButton.classList.remove('hidden');
+  getAnswersButton.classList.add('hidden');
+}
+
 document.addEventListener('DOMContentLoaded', function() {
   const privacyButton = document.getElementById('privacyButton');
   const infoWindow = document.getElementById('infoWindow');
@@ -131,55 +182,7 @@ document.addEventListener('DOMContentLoaded', function() {
   //   getSubmitButton.classList.add('hidden');
   // }
 
-    async function checkSolutionsPost() {
-  // normalize
-  const normalizeRegex = (r) => r.replaceAll("+", "|");
-
-  let score = 0;
-
-  // 10 questions
-  for (let j = 0; j < 10; j++) {
-    // 1) get regex displayed in question
-    const qEl = document.getElementById(`question${j}`);
-    if (!qEl) continue;
-    // remove number
-    let r = qEl.textContent.trim().replace(/^\d+\.\s*/, "");
-    r = normalizeRegex(r);
-
-    // 2) option chosen
-    let selected = -1;
-    for (let i = 0; i < 4; i++) {
-      const optEl = document.getElementById(`q${j}a${i}`);
-      if (optEl.classList.contains('selected')) {
-        selected = i;
-        break;
-      }
-    }
-    if (selected === -1) continue; //0 for no selection
-
-    const correctIndices = [];
-    for (let i = 0; i < 4; i++) {
-      const optEl = document.getElementById(`q${j}a${i}`);
-      let s = optEl.textContent.replace(/^[A-D]\)\s*/, '').trim();
-      if (s === 'λ') s = ''; // empty string
-      if (match(s, r)) correctIndices.push(i);
-    }
-
-    if (correctIndices.includes(selected)) score += 1;
-  }
-
-  score2 = score;
-      
-  if (typeof saveScoreToSupabase === "function") {
-    await saveScoreToSupabase(score1, score2);
-  }
-
-  window.scrollTo({ top: 0, behavior: 'smooth' });
-  const continueButton = document.getElementById('continueToGameBtn');
-  const getAnswersButton = document.getElementById('checkAnswersBtn');
-  continueButton.classList.remove('hidden');
-  getAnswersButton.classList.add('hidden');
-}
+    
 
 /* Generate random regex, with probability of generating single character w
 For use only as a recursive helper function in generateRegex()*/
