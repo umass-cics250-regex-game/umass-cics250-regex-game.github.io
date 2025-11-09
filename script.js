@@ -346,33 +346,35 @@ function genNewExample(r, accept, reject) {
   return [s, !match(s,r)];
 }
 
-// handles begin event 
-document.getElementById('beginBtn').addEventListener('click', function() {
+function beginQuiz(qid) {
     for (var j = 0; j<10; j++) {
-      var r = generateRegex()
-      document.getElementById('question'+String(j)).innerHTML = String(j+1)+". " + regex_to_display(r);
+      var r = generateRegex();
+      document.getElementById(qid+'question'+String(j)).innerHTML = String(j+1)+". " + regex_to_display(r);
       var s = [];
       const labels = ["A","B","C","D"];
+      const correct = Math.floor(Math.random()*4);
       for (var i = 0; i < 4; i++) {
         var s0 = genExample(r);
-        if (Math.random()>0.5) {
-          s0 = perturbString(s0,1);
+        if (i != correct) {
+          do {
+            s0 = perturbString(s0,1);
+          } while (!match(s0,r));
         }
         if (s0 == '') {
           s0 = 'λ';
         }
-        document.getElementById('q'+j+'a'+String(i)).innerHTML = labels[i] + ") " + s0
-        s.push(s0)
+        document.getElementById(qid + 'q'+j+'a'+String(i)).innerHTML = labels[i] + ") " + s0;
+        s.push(s0);
       }
     }
 
     for (let j = 0; j < 10; j++) {
       for (let i = 0; i < 4; i++) {
-        const opt = document.getElementById(`q${j}a${i}`);
+        const opt = document.getElementById(`${qid}q${j}a${i}`);
         opt.addEventListener('click', () => {
           // selection
           for (let k = 0; k < 4; k++) {
-            document.getElementById(`q${j}a${k}`).classList.remove('selected');
+            document.getElementById(`${qid}q${j}a${k}`).classList.remove('selected');
           }
           opt.classList.add('selected');
         });
@@ -384,9 +386,14 @@ document.getElementById('beginBtn').addEventListener('click', function() {
         behavior: 'smooth' // Provides a smooth scrolling animation
     });
 
-    const quiz0 = document.getElementById('quiz0');
+    const quiz0 = document.getElementById('quiz'+qid);
     const landingSection = document.getElementById('landingSection');
-    quiz0.classList.remove("hidden")
+    quiz0.classList.remove("hidden");
+}
+
+// handles begin event 
+document.getElementById('beginBtn').addEventListener('click', function() {
+    beginQuiz('0');
     landingSection.classList.add("hidden")
 });
 
@@ -410,10 +417,9 @@ document.getElementById('continueToGameBtn').addEventListener('click', function(
 
 // handles finish game event
 document.getElementById('finishGameBtn').addEventListener('click', function(){
-  const quiz1 = document.getElementById('quiz1');
-  quiz1.classList.remove('hidden');
   const gameSection = document.getElementById('gameSection');
   gameSection.classList.add('hidden');
+  beginQuiz('1');
 });
 
 /* Password game stuff */
