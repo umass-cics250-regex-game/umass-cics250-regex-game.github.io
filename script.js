@@ -63,7 +63,7 @@ async function saveSession() {
     if (correctIndices.includes(selected)) score += 1;
   }
 
-  score1 = score;
+  scoreBefore = score;
 
   if (typeof saveSession === "function") {
     await saveSession(); 
@@ -114,7 +114,7 @@ async function checkSolutionsPost() {
     if (correctIndices.includes(selected)) score += 1;
   }
 
-  score2 = score;
+  scoreAfter = score;
       
   if (typeof saveScoreToSupabase === "function") {
     await saveScoreToSupabase(score1, score2);
