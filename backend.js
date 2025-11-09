@@ -29,15 +29,26 @@ export async function saveSessionResult(result) {
   //   timestamp: new Date().toISOString()
   // }
   
-  const { data, error } = await supabase
-    .from("session_results")
-    .insert([result]);
+  // const { data, error } = await supabase
+  //   .from("session_results")
+  //   .insert([result]);
     
-  console.log("logged:", data);
+  // console.log("logged:", data);
+  // if (error) {
+  //   console.error("Error saving session result:", error);
+  // } else {
+  //   console.log("Session result saved:", data);
+  // }
+
+  
+  const { data, error } = await supabase
+    .from("scores")
+    .insert([{ score1, score2 }]);
+
   if (error) {
-    console.error("Error saving session result:", error);
+    console.error("Error saving score:", error);
   } else {
-    console.log("Session result saved:", data);
+    console.log("Score saved to Supabase:", data);
   }
 }
 
