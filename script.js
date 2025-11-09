@@ -38,6 +38,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
   // Already defined elsewhere: checkSolutions() computes scoreBefore and reveals Continue
   getAnswersButton.addEventListener('click', checkSolutions);
+  getSubmitButton.addEventListener('click', checkSolutionsPost);
 
   // NEW: what Continue should do in “pre-quiz only” mode
   continueButton.addEventListener('click', () => {
@@ -78,7 +79,7 @@ document.addEventListener('DOMContentLoaded', function() {
   privacyButton.addEventListener('click', showInfoWindow);
 
   closeButton.addEventListener('click', hideInfoWindow);
-
+});
   
   /* Check solutions pre-quiz*/
   // function checkSolutions() {
@@ -141,7 +142,7 @@ document.addEventListener('DOMContentLoaded', function() {
 }
 
 
-  getAnswersButton.addEventListener('click', checkSolutions);
+  // getAnswersButton.addEventListener('click', checkSolutions);
 
   // /* Show answers postquiz */
   // function checkSolutionsPost() {
@@ -201,11 +202,6 @@ document.addEventListener('DOMContentLoaded', function() {
   continueButton.classList.remove('hidden');
   getAnswersButton.classList.add('hidden');
 }
-
-  getSubmitButton.addEventListener('click', checkSolutionsPost);
-
-
-});
 
 /* Generate random regex, with probability of generating single character w
 For use only as a recursive helper function in generateRegex()*/
