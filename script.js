@@ -357,6 +357,7 @@ function beginQuiz(qid) {
         var s0 = genExample(r);
         while (i != correct && match(s0,r)) {
           s0 = perturbString(s0,1);
+          console.log(s0);
         }
         if (s0 == '') {
           s0 = 'λ';
