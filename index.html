@@ -39,9 +39,9 @@
                     </p>
                <button id="beginBtn">Begin</button>
             </div>
+            
 
-
-            <div id="quiz0" class="quiz-section, hidden">
+            <div id="quiz0" class="quiz-section hidden">
                 <h2>Pre-Game Knowledge Check</h2>
 
                 <div class="overview"> Before beginning the game, you will take a short quiz to 
@@ -140,11 +140,13 @@
 
                 <button id="checkAnswersBtn">Check Solutions</button>
                 <button id="continueToGameBtn" class="hidden">Continue</button>
+                <p id="preScoreText"></p>
             </div>
 
-            <div id="gameSection" class="game-section, hidden">
+            <div id="gameSection" class="game-section hidden">
                 <h2>Regular Expression Game</h2>
-
+                <button id="finishGameBtn">Continue</button>
+                <button id="skipToPostQuiz">Skip Game</button>
                 <div class="overview"> At each level of the game, you will input a regular expression which 
                     includes or excludes the given strings. Your solution should only include the following characters
                     { 1 , 0 , ( , ) , * , + } <br> <br>
@@ -185,7 +187,7 @@
             
             </div>
 
-            <div id="quiz1" class="quiz-section, hidden">
+            <div id="quiz1" class="quiz-section hidden">
                 <h2>Post-Game Knowledge Check</h2>
 
                 <div class="overview"> Now that you have finished the game, you will again take a short quiz to 
@@ -282,6 +284,7 @@
                 </div>
 
                 <button id="submitAnswersBtn">Check Solutions</button>
+                <p id="postScoreText"></p>
             </div>
         </div>
     </main>
