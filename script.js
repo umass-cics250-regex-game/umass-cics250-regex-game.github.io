@@ -358,7 +358,7 @@ function beginQuiz(qid) {
         if (i != correct) {
           do {
             s0 = perturbString(s0,1);
-          } while (!match(s0,r));
+          } while (match(s0,r));
         }
         if (s0 == '') {
           s0 = 'λ';
