@@ -216,7 +216,7 @@ function weighted_regex_gen(w) {
 
 /* Generate a random regular expression */
 function generateRegex() {
-  return weighted_regex_gen(0.97)[0];
+  return weighted_regex_gen(0.95)[0];
 }
 
 /* turn screen-readable regex into parseable regex */
@@ -355,10 +355,8 @@ function beginQuiz(qid) {
       const correct = Math.floor(Math.random()*4);
       for (var i = 0; i < 4; i++) {
         var s0 = genExample(r);
-        if (i != correct) {
-          do {
-            s0 = perturbString(s0,1);
-          } while (match(s0,r));
+        while (i != correct && match(s0,r)) {
+          s0 = perturbString(s0,1);
         }
         if (s0 == '') {
           s0 = 'λ';
