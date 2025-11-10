@@ -1,41 +1,35 @@
-import { saveScoreToSupabase } from "./backend.js";
 import { saveSessionResult } from "./backend.js";
 
 const sessionId = Date.now().toString(36) + Math.random().toString(36).slice(2);
 let scoreBefore = 0;       // stays 0 until you add real scoring later
 let scoreAfter = 0;
+let levelsCompleted = 0;
 
-async function saveSession() {
-  // const row = {
-  //   session_id: sessionId,
-  //   score_before: scoreBefore,
-  //   levels_completed: levelsCompleted,
-  //   timestamp: new Date().toISOString()
-  // };
-  await saveSessionResult(scoreBefore,scoreAfter);   // writes to DB
-}
+// async function saveSession() {
+//   // const row = {
+//   //   session_id: sessionId,
+//   //   score_before: scoreBefore,
+//   //   levels_completed: levelsCompleted,
+//   //   timestamp: new Date().toISOString()
+//   // };
+//   await saveSessionResult(scoreBefore,scoreAfter);   // writes to DB
+// }
 
   
-  /* Check solutions pre-quiz*/
-  // function checkSolutions() {
-  //   window.scrollTo({
-  //       top: 0, // Scrolls to the top of the page
-  //       behavior: 'smooth' // Provides a smooth scrolling animation
-  //   });
-  //   continueButton.classList.remove('hidden');
-  //   getAnswersButton.classList.add('hidden');
-  // }
+// Grading function
 
-  async function checkSolutions() {
-  // normalize
-  const normalizeRegex = (r) => r.replaceAll("+", "|");
+function normalizeRegex(r) {
+  return r.replaceAll("+", "|");
+}
 
+function gradeQuiz(qid) {
   let score = 0;
+  const perQuestion = [];
 
   // 10 questions
   for (let j = 0; j < 10; j++) {
     // 1) get regex displayed in question
-    const qEl = document.getElementById(`question${j}`);
+    const qEl = document.getElementById(`${qid}question${j}`);
     if (!qEl) continue;
     // remove number
     let r = qEl.textContent.trim().replace(/^\d+\.\s*/, "");
@@ -44,137 +38,170 @@ async function saveSession() {
     // 2) option chosen
     let selected = -1;
     for (let i = 0; i < 4; i++) {
-      const optEl = document.getElementById(`q${j}a${i}`);
-      if (optEl.classList.contains('selected')) {
+      const optEl = document.getElementById(`${qid}q${j}a${i}`);
+      if (optEl.classList.contains("selected")) {
         selected = i;
         break;
       }
     }
-    if (selected === -1) continue; //0 for no selection
+    if (selected === -1) {
+      perQuestion.push({ selected: -1, correctIndices: [] });
+      continue; //0 for no selection 
+    }
 
     const correctIndices = [];
     for (let i = 0; i < 4; i++) {
-      const optEl = document.getElementById(`q${j}a${i}`);
-      let s = optEl.textContent.replace(/^[A-D]\)\s*/, '').trim();
-      if (s === 'λ') s = ''; // empty string
+      const optEl = document.getElementById(`${qid}q${j}a${i}`);
+      let s = optEl.textContent.replace(/^[A-D]\)\s*/, "").trim();
+      if (s === "λ") s = ""; // empty string
       if (match(s, r)) correctIndices.push(i);
     }
 
-    if (correctIndices.includes(selected)) score += 1;
+    if (correctIndices.includes(selected)) {
+      score += 1;
+    }
+
+    perQuestion.push({ selected, correctIndices });
   }
 
-  scoreBefore = score;
-
-  // if (typeof saveSession === "function") {
-  //   await saveSession(); 
-  // }
-
-  window.scrollTo({ top: 0, behavior: 'smooth' });
-  const continueButton = document.getElementById('continueToGameBtn');
-  const getAnswersButton = document.getElementById('checkAnswersBtn');
-  continueButton.classList.remove('hidden');
-  getAnswersButton.classList.add('hidden');
+  return { score, perQuestion };
 }
 
+function applyHighlighting(qid, perQuestion) {
+  for (let j = 0; j < perQuestion.length; j++) {
+    const { selected, correctIndices } = perQuestion[j];
 
-async function checkSolutionsPost() {
-  // normalize
-  const normalizeRegex = (r) => r.replaceAll("+", "|");
-
-  let score = 0;
-
-  // 10 questions
-  for (let j = 0; j < 10; j++) {
-    // 1) get regex displayed in question
-    const qEl = document.getElementById(`question${j}`);
-    if (!qEl) continue;
-    // remove number
-    let r = qEl.textContent.trim().replace(/^\d+\.\s*/, "");
-    r = normalizeRegex(r);
-
-    // 2) option chosen
-    let selected = -1;
     for (let i = 0; i < 4; i++) {
-      const optEl = document.getElementById(`q${j}a${i}`);
-      if (optEl.classList.contains('selected')) {
-        selected = i;
-        break;
+      const optEl = document.getElementById(`${qid}q${j}a${i}`);
+      if (!optEl) continue;
+
+      optEl.classList.remove("correct", "incorrect");
+
+      if (correctIndices.includes(i)) {
+        optEl.classList.add("correct");
+      }
+
+      if (i === selected && !correctIndices.includes(i)) {
+        optEl.classList.remove("correct");
+        optEl.classList.add("incorrect");
       }
     }
-    if (selected === -1) continue; //0 for no selection
-
-    const correctIndices = [];
-    for (let i = 0; i < 4; i++) {
-      const optEl = document.getElementById(`q${j}a${i}`);
-      let s = optEl.textContent.replace(/^[A-D]\)\s*/, '').trim();
-      if (s === 'λ') s = ''; // empty string
-      if (match(s, r)) correctIndices.push(i);
-    }
-
-    if (correctIndices.includes(selected)) score += 1;
   }
-
-  scoreAfter = score;
-      
-  if (typeof saveScoreToSupabase === "function") {
-    await saveScoreToSupabase(scoreBefore, scoreAfter);
-  }
-
-  window.scrollTo({ top: 0, behavior: 'smooth' });
-  const continueButton = document.getElementById('continueToGameBtn');
-  const getAnswersButton = document.getElementById('checkAnswersBtn');
-  continueButton.classList.remove('hidden');
-  getAnswersButton.classList.add('hidden');
 }
 
-document.addEventListener('DOMContentLoaded', function() {
-  const privacyButton = document.getElementById('privacyButton');
-  const infoWindow = document.getElementById('infoWindow');
-  const closeButton = document.getElementById('closeButton');
-  const continueButton = document.getElementById('continueToGameBtn');
-  const finishButton = document.getElementById('finishGameBtn');
-  const getAnswersButton = document.getElementById('checkAnswersBtn');
-  const getSubmitButton = document.getElementById('submitAnswersBtn');
 
+/* ---------- prequiz -> game -> postquiz ---------- */
 
-  // NEW: these match your HTML structure
-  const quizSection  = document.querySelector('.quiz-section');
-  const contentCard  = document.querySelector('.content-card');
+document.addEventListener("DOMContentLoaded", () => {
+  console.log("script.js DOMContentLoaded");
 
-  function showInfoWindow() { infoWindow.classList.remove('hidden'); }
-  function hideInfoWindow() { infoWindow.classList.add('hidden'); }
+  const landingSection = document.getElementById("landingSection");
+  const quiz0 = document.getElementById("quiz0");
+  const quiz1 = document.getElementById("quiz1");
+  const gameSection = document.getElementById("gameSection");
 
-  privacyButton.addEventListener('click', showInfoWindow);
-  closeButton.addEventListener('click', hideInfoWindow);
+  const beginBtn = document.getElementById("beginBtn");
+  const checkAnswersBtn = document.getElementById("checkAnswersBtn");
+  const continueToGameBtn = document.getElementById("continueToGameBtn");
+  const finishGameBtn = document.getElementById("finishGameBtn");
+  const submitAnswersBtn = document.getElementById("submitAnswersBtn");
 
-  // Already defined elsewhere: checkSolutions() computes scoreBefore and reveals Continue
-  getAnswersButton.addEventListener('click', checkSolutions);
-  getSubmitButton.addEventListener('click', checkSolutionsPost);
+  const preScoreText = document.getElementById("preScoreText");
+  const postScoreText = document.getElementById("postScoreText");
 
-  // NEW: what Continue should do in “pre-quiz only” mode
-  continueButton.addEventListener('click', () => {
-    // hide the quiz block
-    quizSection?.classList.add('hidden');
+  const privacyButton = document.getElementById("privacyButton");
+  const infoWindow = document.getElementById("infoWindow");
+  const closeButton = document.getElementById("closeButton");
+  const skipToPostQuizBtn = document.getElementById("skipToPostQuiz");
 
-  // show a simple completion screen
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+  // Privacy
+  privacyButton.addEventListener("click", () =>
+    infoWindow.classList.remove("hidden")
+  );
+  closeButton.addEventListener("click", () =>
+    infoWindow.classList.add("hidden")
+  );
+
+  // 1) Begin: pre-quiz
+  beginBtn.addEventListener("click", () => {
+    console.log("Begin clicked");
+    beginQuiz("0");
+    landingSection.classList.add("hidden");
+    quiz0.classList.remove("hidden");
+    window.scrollTo({ top: 0, behavior: "smooth" });
   });
+
+  // 2) Pre-quiz: check solutions
+  checkAnswersBtn.addEventListener("click", () => {
+    const { score, perQuestion } = gradeQuiz("0");
+    scoreBefore = score;
+    applyHighlighting("0", perQuestion);
+
+    if (preScoreText) {
+      preScoreText.textContent = `Pre-quiz score: ${scoreBefore} / 10`;
+    }
+
+    checkAnswersBtn.classList.add("hidden");
+    continueToGameBtn.classList.remove("hidden");
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  });
+
+  // 3) Continue: go to game
+  continueToGameBtn.addEventListener("click", () => {
+    quiz0.classList.add("hidden");
+    gameSection.classList.remove("hidden");
+    initializeGame();
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  });
+
+  // 4) Finish game: go to post-quiz
+  finishGameBtn.addEventListener("click", () => {
+    levelsCompleted += 1;
+
+    gameSection.classList.add("hidden");
+    quiz1.classList.remove("hidden");
+    beginQuiz("1");
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  });
+
+  //DEBUGGing
+  skipToPostQuizBtn.addEventListener("click", () => {
+    levelsCompleted = 10;  // fake "10 levels done" so data is consistent
+    gameSection.classList.add("hidden");
+    quiz1.classList.remove("hidden");
+    beginQuiz("1");
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  });
+
+  // 5) Post-quiz: check solutions + send to Supabase
+  submitAnswersBtn.addEventListener("click", async () => {
+    const { score, perQuestion } = gradeQuiz("1");
+    scoreAfter = score;
+    applyHighlighting("1", perQuestion);
+
+    if (postScoreText) {
+      postScoreText.textContent = `Post-quiz score: ${scoreAfter} / 10`;
+    }
+
+    // Send session result to Supabase
+    await saveSessionResult({
+      session_id: sessionId,
+      score_before: scoreBefore,
+      score_after: scoreAfter,
+      levels_completed: levelsCompleted,
+    });
+
+    submitAnswersBtn.disabled = true;
+    submitAnswersBtn.textContent = "Submitted";
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  });
+
+  // 6) Hook up game input here so it never runs before DOM is ready
+  const userRegexInput = document.getElementById("user-regex");
+  if (userRegexInput) {
+    userRegexInput.addEventListener("input", handleUserRegexInput); // convert previous document.getElementById("user-regex") handler to function
+  }
 });
-
-
-
-
-  // getAnswersButton.addEventListener('click', checkSolutions);
-
-  // /* Show answers postquiz */
-  // function checkSolutionsPost() {
-  //   window.scrollTo({
-  //       top: 0, // Scrolls to the top of the page
-  //       behavior: 'smooth' // Provides a smooth scrolling animation
-  //   });
-  //   getSubmitButton.classList.add('hidden');
-  // }
-
     
 
 /* Generate random regex, with probability of generating single character w
@@ -381,47 +408,11 @@ function beginQuiz(qid) {
         });
       }
     }
-
-    window.scrollTo({
-        top: 0, // Scrolls to the top of the page
-        behavior: 'smooth' // Provides a smooth scrolling animation
-    });
-
-    const quiz0 = document.getElementById('quiz'+qid);
-    const landingSection = document.getElementById('landingSection');
-    quiz0.classList.remove("hidden");
+//handled selection here
 }
 
+//handled previous events above.
 // handles begin event 
-document.getElementById('beginBtn').addEventListener('click', function() {
-    beginQuiz('0');
-    landingSection.classList.add("hidden")
-});
-
-// handles checkAnswer event 
-document.getElementById('checkAnswersBtn').addEventListener('click', function() {
-    window.scrollTo({
-        top: 0, // Scrolls to the top of the page
-        behavior: 'smooth' // Provides a smooth scrolling animation
-    });
-});
-
-// handles continue (toGame) event 
-document.getElementById('continueToGameBtn').addEventListener('click', function() {
-  const quiz0 = document.getElementById('quiz0');
-  quiz0.classList.add('hidden');
-
-  const gameSection = document.getElementById('gameSection');
-  gameSection.classList.remove('hidden');
-  initializeGame();
-});
-
-// handles finish game event
-document.getElementById('finishGameBtn').addEventListener('click', function(){
-  const gameSection = document.getElementById('gameSection');
-  gameSection.classList.add('hidden');
-  beginQuiz('1');
-});
 
 /* Password game stuff */
 var include_strs = [];
@@ -469,61 +460,52 @@ function initializeGame() {
   }
 }
 
-document.getElementById("user-regex").addEventListener('input', function (evt) {
-  const r = display_to_regex(this.value);
-  
-  const include_html = document.getElementById('include-list');
-  const exclude_html = document.getElementById('exclude-list');
+
+
+function handleUserRegexInput(evt) {
+  const r = display_to_regex(evt.target.value);
+
+  const include_html = document.getElementById("include-list");
+  const exclude_html = document.getElementById("exclude-list");
   include_html.innerHTML = "";
   exclude_html.innerHTML = "";
-  
-  var all_met = true;
 
-  for (var i = 0; i < include_strs.length; i++) {
-    s = include_strs[i]
-    matches = match(s,r);
+  let all_met = true;
 
-    if (matches) {
-      var entry = document.createElement('li');
-      entry.appendChild(document.createTextNode(s+" (✓)"));
-      include_html.appendChild(entry);
-    } else {
-      var entry = document.createElement('li');
-      entry.appendChild(document.createTextNode(s+" (⨉)"));
-      include_html.appendChild(entry);
-      all_met = false;
-    }
+  for (let i = 0; i < include_strs.length; i++) {
+    const s = include_strs[i];
+    const matches = match(s, r);
+
+    const entry = document.createElement("li");
+    entry.appendChild(
+      document.createTextNode(s + (matches ? " (✓)" : " (⨉)"))
+    );
+    include_html.appendChild(entry);
+    if (!matches) all_met = false;
   }
 
-  for (var i = 0; i < exclude_strs.length; i++) {
-    s = exclude_strs[i];
-    matches = match(s,r);
+  for (let i = 0; i < exclude_strs.length; i++) {
+    const s = exclude_strs[i];
+    const matches = match(s, r);
 
-    if (!matches) {
-      var entry = document.createElement('li');
-      entry.appendChild(document.createTextNode(s+" (✓)"));
-      exclude_html.appendChild(entry);
-    } else {
-      var entry = document.createElement('li');
-      entry.appendChild(document.createTextNode(s+" (⨉)"));
-      exclude_html.appendChild(entry);
-      all_met = false;
-    }
+    const entry = document.createElement("li");
+    entry.appendChild(
+      document.createTextNode(s + (!matches ? " (✓)" : " (⨉)"))
+    );
+    exclude_html.appendChild(entry);
+    if (matches) all_met = false;
   }
 
   if (all_met) {
-    var [c,b] = genNewExample(r,include_strs,exclude_strs);
-    if (b) {
+    const [c, shouldAccept] = genNewExample(r, include_strs, exclude_strs);
+    const entry = document.createElement("li");
+    entry.appendChild(document.createTextNode(c + " (⨉)"));
+    if (shouldAccept) {
       include_strs.push(c);
-      var entry = document.createElement('li');
-      entry.appendChild(document.createTextNode(c+" (⨉)"));
       include_html.appendChild(entry);
     } else {
       exclude_strs.push(c);
-      var entry = document.createElement('li');
-      entry.appendChild(document.createTextNode(c+" (⨉)"));
       exclude_html.appendChild(entry);
     }
   }
-
-});
+}
