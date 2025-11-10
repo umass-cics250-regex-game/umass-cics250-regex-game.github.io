@@ -15,3 +15,21 @@ export async function saveSessionResult(result) {
     console.log("Session result saved:", data);
   }
 }
+
+// --  session_results for storing results in Supabase SQL editor
+// CREATE TABLE IF NOT EXISTS session_results (
+//     id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,  -- unique row ID
+//     session_id TEXT NOT NULL,                             -- unique session identifier
+//     score_before INT NOT NULL DEFAULT 0,                  -- score before session
+//     score_after INT NOT NULL DEFAULT 0,                   -- score after session
+//     levels_completed INT NOT NULL DEFAULT 0,              -- number of levels completed
+//     created_at TIMESTAMP WITH TIME ZONE DEFAULT now()     -- timestamp of creation
+// );
+
+// -- Allow insert on session_results -  results in supabase SQL editor
+// CREATE POLICY "Allow insert for anon" 
+// ON session_results
+// FOR INSERT 
+// TO anon 
+// WITH CHECK (true);
+
