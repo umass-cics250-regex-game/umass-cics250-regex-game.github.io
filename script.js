@@ -101,7 +101,7 @@ function addExplanations(qid, perQuestion) {
     let ans = "";
     console.log(correctIndices);
     for (let i in correctIndices){
-      ans += labels[i]+',';
+      ans += labels[correctIndices[i]]+',';
     }
     ans = ans.slice(0, -1)
     explanation.textContent = "Correct answer(s) is ("+ ans+")";
