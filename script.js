@@ -404,25 +404,29 @@ function genNewExample(r, accept, reject) {
 
 function beginQuiz(qid) {
     for (var j = 0; j<10; j++) {
-      var r = generateRegex();
-      document.getElementById(qid+'question'+String(j)).innerHTML = String(j+1)+". " + regex_to_display(r);
-      var s = [];
-      const labels = ["A","B","C","D"];
-      const correct = Math.floor(Math.random()*4);
-      for (var i = 0; i < 4; i++) {
-        var s0 = genExample(r);
-        var k = 0;
-        while (i != correct && match(s0,r) && k < 100) {
-          s0 = perturbString(s0,1);
-          console.log(s0);
-          k += 1;
+      var ok = true;
+      do {
+        ok = true
+        var r = generateRegex();
+        document.getElementById(qid+'question'+String(j)).innerHTML = String(j+1)+". " + regex_to_display(r);
+        var s = [];
+        const labels = ["A","B","C","D"];
+        const correct = Math.floor(Math.random()*4);
+        var answers = [];
+        for (var i = 0; i < 4; i++) {
+          var s0 = genExample(r);
+          var k = 0;
+          while ((i != correct && match(s0,r) && k < 100) || answers.include(s0)) {
+            s0 = perturbString(s0,1);
+            console.log(s0);
+            k += 1;
+          }
+          if (k>99) ok=false;
+          if (s0 === '') s0 = 'λ';
+          document.getElementById(qid + 'q'+j+'a'+String(i)).innerHTML = labels[i] + ") " + s0;
+          s.push(s0);
         }
-        if (s0 == '') {
-          s0 = 'λ';
-        }
-        document.getElementById(qid + 'q'+j+'a'+String(i)).innerHTML = labels[i] + ") " + s0;
-        s.push(s0);
-      }
+      } while (!ok); // if we ever fail to generate a good example after 100 attempts, regenerate the regex and try again
     }
 
     for (let j = 0; j < 10; j++) {
