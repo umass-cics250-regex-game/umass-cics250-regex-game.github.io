@@ -412,11 +412,10 @@ function beginQuiz(qid) {
         var s = [];
         const labels = ["A","B","C","D"];
         const correct = Math.floor(Math.random()*4);
-        var answers = [];
         for (var i = 0; i < 4; i++) {
           var s0 = genExample(r);
           var k = 0;
-          while ((i != correct && match(s0,r) && k < 100) || answers.includes(s0)) {
+          while ((i != correct && match(s0,r) && k < 100) || s.includes(s0)) {
             s0 = perturbString(s0,1);
             console.log(s0);
             k += 1;
