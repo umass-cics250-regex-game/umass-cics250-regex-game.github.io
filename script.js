@@ -99,6 +99,7 @@ function addExplanations(qid, perQuestion) {
     console.log(correctIndices)
     const explanation = document.getElementById(`${qid}explanation${j}`);
     let ans = "";
+    console.log(correctIndices);
     for (let i in correctIndices){
       ans += labels[i]+',';
     }
