@@ -416,7 +416,7 @@ function beginQuiz(qid) {
         for (var i = 0; i < 4; i++) {
           var s0 = genExample(r);
           var k = 0;
-          while ((i != correct && match(s0,r) && k < 100) || answers.include(s0)) {
+          while ((i != correct && match(s0,r) && k < 100) || answers.includes(s0)) {
             s0 = perturbString(s0,1);
             console.log(s0);
             k += 1;
