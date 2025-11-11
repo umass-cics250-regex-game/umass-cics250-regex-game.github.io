@@ -89,6 +89,32 @@ function applyHighlighting(qid, perQuestion) {
   }
 }
 
+function addExplanations(qid, perQuestion) {
+  const parentElement = document.getElementById("quiz0");
+  const childElements = parentElement.querySelectorAll(".explanation")
+  const labels = ['A','B','C','D'];
+  
+  for (let j = 0; j < perQuestion.length; j++) {
+    const { selected, correctIndices } = perQuestion[j];
+    console.log(correctIndices)
+    const explanation = document.getElementById(`${qid}explanation${j}`);
+    let ans = "";
+    for (let i in correctIndices){
+      ans += labels[i]+',';
+    }
+    ans = ans.slice(0, -1)
+    explanation.textContent = "Correct answer(s) is ("+ ans+")";
+    explanation.classList.remove("hidden");
+  }
+
+  childElements.forEach(item => {
+    console.log("hello")
+    item.textContent = "This is content";
+    item.classList.remove("hidden");
+  })
+  
+}
+
 
 /* ---------- prequiz -> game -> postquiz ---------- */
 
@@ -136,6 +162,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const { score, perQuestion } = gradeQuiz("0");
     scoreBefore = score;
     applyHighlighting("0", perQuestion);
+    addExplanations("0", perQuestion);
 
     if (preScoreText) {
       preScoreText.textContent = `Pre-quiz score: ${scoreBefore} / 10`;
@@ -178,6 +205,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const { score, perQuestion } = gradeQuiz("1");
     scoreAfter = score;
     applyHighlighting("1", perQuestion);
+    addExplanations("1", perQuestion);
 
     if (postScoreText) {
       postScoreText.textContent = `Post-quiz score: ${scoreAfter} / 10`;
@@ -461,7 +489,6 @@ function initializeGame() {
 }
 
 
-
 function handleUserRegexInput(evt) {
   const r = display_to_regex(evt.target.value);
 
@@ -497,6 +524,12 @@ function handleUserRegexInput(evt) {
   }
 
   if (all_met) {
+    // Increment levels completed
+    levelsCompleted += 1;
+    const levelsText = document.getElementById('level-text');
+    levelsText.textContent = "Level " + String(levelsCompleted+1)
+
+    // Add new string
     const [c, shouldAccept] = genNewExample(r, include_strs, exclude_strs);
     const entry = document.createElement("li");
     entry.appendChild(document.createTextNode(c + " (⨉)"));
