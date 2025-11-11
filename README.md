@@ -64,3 +64,10 @@ This repository hosts an **interactive educational web game** designed to help s
 
 - All quiz and game scores are recorded anonymously to ensure user privacy.
 - Analysis allows instructors to track learning progress and the effectiveness of the exercises.
+
+---
+
+## Resources
+### Lesson Plan
+
+A detailed [lesson plan](https://github.com/umass-cics250-regex-game/umass-cics250-regex-game.github.io/blob/main/RLO%20Lesson%20Plan%20F25.pdf) for using the Regex Game in a classroom setting is available in this repository as a PDF. The lesson plan guides instructors on how to integrate the game into their curriculum.
