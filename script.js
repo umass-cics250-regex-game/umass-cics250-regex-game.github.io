@@ -91,12 +91,10 @@ function applyHighlighting(qid, perQuestion) {
 
 function addExplanations(qid, perQuestion) {
   const parentElement = document.getElementById("quiz0");
-  const childElements = parentElement.querySelectorAll(".explanation")
   const labels = ['A','B','C','D'];
   
   for (let j = 0; j < perQuestion.length; j++) {
     const { selected, correctIndices } = perQuestion[j];
-    console.log(correctIndices)
     const explanation = document.getElementById(`${qid}explanation${j}`);
     let ans = "";
     for (let i in correctIndices){
@@ -106,13 +104,6 @@ function addExplanations(qid, perQuestion) {
     explanation.textContent = "Correct answer(s) is ("+ ans+")";
     explanation.classList.remove("hidden");
   }
-
-  childElements.forEach(item => {
-    console.log("hello")
-    item.textContent = "This is content";
-    item.classList.remove("hidden");
-  })
-  
 }
 
 
@@ -137,8 +128,10 @@ document.addEventListener("DOMContentLoaded", () => {
 
   const privacyButton = document.getElementById("privacyButton");
   const infoWindow = document.getElementById("infoWindow");
+  const feedbackWindow = document.getElementById("feedbackFormWindow");
   const closeButton = document.getElementById("closeButton");
-  const skipToPostQuizBtn = document.getElementById("skipToPostQuiz");
+  const feedbackCloseButton = document.getElementById("feedbackCloseButton");
+  //const skipToPostQuizBtn = document.getElementById("skipToPostQuiz");
 
   // Privacy
   privacyButton.addEventListener("click", () =>
@@ -150,7 +143,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // 1) Begin: pre-quiz
   beginBtn.addEventListener("click", () => {
-    console.log("Begin clicked");
+    //console.log("Begin clicked");
     beginQuiz("0");
     landingSection.classList.add("hidden");
     quiz0.classList.remove("hidden");
@@ -192,17 +185,18 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 
   //DEBUGGing
-  skipToPostQuizBtn.addEventListener("click", () => {
-    levelsCompleted = 10;  // fake "10 levels done" so data is consistent
-    gameSection.classList.add("hidden");
-    quiz1.classList.remove("hidden");
-    beginQuiz("1");
-    window.scrollTo({ top: 0, behavior: "smooth" });
-  });
+  // skipToPostQuizBtn.addEventListener("click", () => {
+  //   levelsCompleted = 10;  // fake "10 levels done" so data is consistent
+  //   gameSection.classList.add("hidden");
+  //   quiz1.classList.remove("hidden");
+  //   beginQuiz("1");
+  //   window.scrollTo({ top: 0, behavior: "smooth" });
+  // });
 
   // 5) Post-quiz: check solutions + send to Supabase
   submitAnswersBtn.addEventListener("click", async () => {
     const { score, perQuestion } = gradeQuiz("1");
+    feedbackWindow.classList.remove("hidden");
     scoreAfter = score;
     applyHighlighting("1", perQuestion);
     addExplanations("1", perQuestion);
@@ -223,6 +217,11 @@ document.addEventListener("DOMContentLoaded", () => {
     submitAnswersBtn.textContent = "Submitted";
     window.scrollTo({ top: 0, behavior: "smooth" });
   });
+
+  // Feedback window
+  feedbackCloseButton.addEventListener("click", () =>
+    feedbackCloseButton.classList.add("hidden")
+  );
 
   // 6) Hook up game input here so it never runs before DOM is ready
   const userRegexInput = document.getElementById("user-regex");
@@ -413,7 +412,7 @@ function beginQuiz(qid) {
         var k = 0;
         while (i != correct && match(s0,r) && k < 100) {
           s0 = perturbString(s0,1);
-          console.log(s0);
+          //console.log(s0);
           k += 1;
         }
         if (s0 == '') {
@@ -527,7 +526,10 @@ function handleUserRegexInput(evt) {
     // Increment levels completed
     levelsCompleted += 1;
     const levelsText = document.getElementById('level-text');
-    levelsText.textContent = "Level " + String(levelsCompleted+1)
+    levelsText.textContent = "Level " + String(levelsCompleted+1);
+    if (levelsCompleted >= 5){
+      enableFinishGameButton();
+    }
 
     // Add new string
     const [c, shouldAccept] = genNewExample(r, include_strs, exclude_strs);
@@ -541,4 +543,9 @@ function handleUserRegexInput(evt) {
       exclude_html.appendChild(entry);
     }
   }
+}
+
+function enableFinishGameButton(){
+  const finishGameBtn = document.getElementById('finishGameBtn');
+  finishGameBtn.disabled = false;
 }
