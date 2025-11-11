@@ -9,8 +9,9 @@ This repository contains the source code for a Regular Expressions game, intende
 The game is hosted online and accessible here: [umass-cics250-regex-game.github.io](https://umass-cics250-regex-game.github.io)
 
 - Begin with the Pre-Quiz to assess your current knowledge of regular expressions.
-- Play through 10 levels of the Password Game to practice and reinforce regex skills.
+- Play through 5 levels of the Password Game to practice and reinforce regex skills.
 - Complete the Post-Quiz to evaluate your improvement.
+- Provide feedback through the [Google Form](https://docs.google.com/forms/d/e/1FAIpQLSfNd0vCwUVqo026Y6JIRyLq_EViuOj9REROGcara9mgPteorw/viewform?usp=dialog) after playing.
 
 ---
 
@@ -19,6 +20,7 @@ The game is hosted online and accessible here: [umass-cics250-regex-game.github.
 - Frontend: HTML, CSS, JavaScript (for interactive UI, quizzes, and game logic)
 - Backend:  JavaScript (backend.js) handling score processing and game logic
 - Database: Supabase (for storing quiz and game scores securely)
+
 
 ---
 
@@ -51,6 +53,14 @@ This repository hosts an **interactive educational web game** designed to help s
 - Evaluates the student’s knowledge after completing the game.
 - Measures improvement compared to the pre-quiz.
 
+### Feedback
+
+- Players can provide feedback on their experience with the game.
+- Helps the instructors improve game design, usability, and learning effectiveness.
+- Feedback Link: [Google Form](https://docs.google.com/forms/d/e/1FAIpQLSfNd0vCwUVqo026Y6JIRyLq_EViuOj9REROGcara9mgPteorw/viewform?usp=dialog)
+
+
 ### Score Analysis
+
 - All quiz and game scores are recorded anonymously to ensure user privacy.
 - Analysis allows instructors to track learning progress and the effectiveness of the exercises.
