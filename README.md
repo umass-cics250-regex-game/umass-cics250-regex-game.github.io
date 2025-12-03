@@ -68,13 +68,20 @@ This repository hosts an **interactive educational web game** designed to help s
 ---
 
 ## Resources
+
 ### Lesson Plan
 
-- A detailed [lesson plan](https://github.com/umass-cics250-regex-game/umass-cics250-regex-game.github.io/blob/main/RLO%20Lesson%20Plan%20F25.pdf) for using the Regex Game in a classroom setting is available in this repository as a PDF. The lesson plan guides instructors on how to integrate the game into their curriculum.
+- A detailed [lesson plan](https://github.com/umass-cics250-regex-game/umass-cics250-regex-game.github.io/blob/main/Resources/RLO%20Lesson%20Plan%20F25.pdf) for using the Regex Game in a classroom setting is available in this repository as a PDF. The lesson plan guides instructors on how to integrate the game into their curriculum.
 
-- A presentation slide deck is also included in this repository as a PDF, which provides an overview of the game and summarizes pilot feedback.
+### Presentation Slide
 
-- Collected scores from the study are available here in this repository.
+- A [presentation slide deck](https://github.com/umass-cics250-regex-game/umass-cics250-regex-game.github.io/blob/main/Resources/CS_879__RLO_Presentation.pdf) is also included in this repository as a PDF, which provides an overview of the game and summarizes pilot feedback.
 
-- Student feedback collected during the study can be found here in this repository.
+### Score
+
+- Collected scores from the study are available [here](https://github.com/umass-cics250-regex-game/umass-cics250-regex-game.github.io/blob/main/Resources/Score%20Results.png) in this repository.
+
+### Student Feedback
+
+- Student feedback collected during the study can be found [here](https://github.com/umass-cics250-regex-game/umass-cics250-regex-game.github.io/blob/main/Resources/Student%20Feedback%20on%20the%20Regex%20Game.pdf) in this repository.
 
