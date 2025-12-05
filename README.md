@@ -11,7 +11,9 @@ The game is hosted online and accessible here: [umass-cics250-regex-game.github.
 - Begin with the Pre-Quiz to assess your current knowledge of regular expressions.
 - Play through 5 levels of the Password Game to practice and reinforce regex skills.
 - Complete the Post-Quiz to evaluate your improvement.
-- Provide feedback through the [Google Form](https://docs.google.com/forms/d/e/1FAIpQLSfNd0vCwUVqo026Y6JIRyLq_EViuOj9REROGcara9mgPteorw/viewform?usp=dialog) after playing.
+- Share feedback through the [Google Form](https://docs.google.com/forms/d/e/1FAIpQLSfNd0vCwUVqo026Y6JIRyLq_EViuOj9REROGcara9mgPteorw/viewform?usp=dialog) after playing.
+
+You can also watch this video for a quick overview: [here](https://youtu.be/F1w2G9wOCEU)
 
 ---
 
